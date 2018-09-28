@@ -1,10 +1,14 @@
 package com.tutorials.camera.ui.activities;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
@@ -13,9 +17,11 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.tutorials.camera.R;
 import com.tutorials.camera.data.LocalData;
+import com.tutorials.camera.data.LocalParams;
 import com.tutorials.camera.interfaces.IUsers;
 import com.tutorials.camera.models.Token;
 import com.tutorials.camera.models.User;
+import com.tutorials.camera.tools.Permissions;
 import com.tutorials.camera.tools.RetrofitClient;
 
 import okhttp3.ResponseBody;
@@ -30,6 +36,64 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
+        initViews();
+        //launch();
+
+    }
+
+    private void launch()
+    {
+        if(Permissions.checkCameraPermission(getApplicationContext()))
+        {
+            if(Permissions.checkReadingExternalPermission(getApplicationContext()))
+            {
+                if(Permissions.checkWritingExternalPermission(getApplicationContext()))
+                {
+                    initViews();
+                }
+                else
+                {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                    {
+                        ActivityCompat.requestPermissions(this,
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, LocalParams.WRITE_EXTERNAL_STORAGE);
+                    }
+                    else
+                    {
+                        finish();
+                    }
+
+                }
+            }
+            else
+            {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+                {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, LocalParams.READ_EXTERNAL_QUERY);
+                }
+                else
+                {
+                    finish();
+                }
+            }
+        }
+        else
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
+            {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CAMERA}, LocalParams.CAMERA);
+            }
+            else
+            {
+                finish();
+            }
+        }
+    }
+
+    private void initViews()
+    {
         findViewById(R.id.btn_login).setOnClickListener(this);
     }
 
@@ -151,4 +215,52 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                 break;
         }
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults)
+    {
+        switch (requestCode)
+        {
+            case LocalParams.CAMERA:
+            {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    Toast.makeText(this, "Camera permission granted", Toast.LENGTH_SHORT).show();
+                    launch();
+                }
+                else
+                {
+                    Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+            case LocalParams.READ_EXTERNAL_QUERY:
+            {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    Toast.makeText(this, "Reading storage permission granted", Toast.LENGTH_SHORT).show();
+                    launch();
+                }
+                else
+                {
+                    Toast.makeText(this, "Reading storage permission denied", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+            case LocalParams.WRITE_EXTERNAL_STORAGE:
+            {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    Toast.makeText(this, "Writing storage permission granted", Toast.LENGTH_SHORT).show();
+                    launch();
+                }
+                else
+                {
+                    Toast.makeText(this, "Writing storage permission denied", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+        }
+    }
+
 }
