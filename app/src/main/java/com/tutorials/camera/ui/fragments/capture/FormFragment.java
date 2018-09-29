@@ -138,6 +138,10 @@ public class FormFragment extends _BaseFragment implements View.OnClickListener 
                             if(descEdt.getText()!=null)
                                 picture.setDescription(descEdt.getText().toString());
                             picture.setFilePath(file.getAbsolutePath());
+                            picture.setFolder(SCamera.getInstance().getFolderName());
+
+                            picture.setUploaded(false);
+                            picture.setUserId(1L);
 
                             PictureDao pictureDao = app.getDaoSession().getPictureDao();
                             pictureDao.insert(picture);
@@ -145,6 +149,10 @@ public class FormFragment extends _BaseFragment implements View.OnClickListener 
                             Toast.makeText(getContext(),"Saved",Toast.LENGTH_LONG).show();
                             if(getActivity()!=null)
                                 getActivity().finish();
+                        }
+                        else
+                        {
+                            Toast.makeText(getContext(),"Can't create folder",Toast.LENGTH_LONG).show();
                         }
 
                     }

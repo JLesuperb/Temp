@@ -88,8 +88,14 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
                     RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
                     MultipartBody.Part body = MultipartBody.Part.createFormData("Picture", file.getName(), reqFile);
-                    //RequestBody name = RequestBody.create(MediaType.parse("text/plain"), "upload_test");
-                    Call<ResponseBody> call = iPictures.upload(token,body,picture);
+                    //********** Recoded
+                    //RequestBody folder = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getFolder());
+                    RequestBody folder = RequestBody.create(okhttp3.MultipartBody.FORM, file.getParentFile().getName());
+
+                    /*RequestBody.create(
+                            okhttp3.MultipartBody.FORM, descriptionString);*/
+
+                    Call<ResponseBody> call = iPictures.upload(token,body,folder);
                     call.enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response)
