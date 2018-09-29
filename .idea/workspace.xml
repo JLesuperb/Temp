@@ -11,9 +11,9 @@
   <component name="ChangeListManager">
     <list default="true" id="78b7b5bd-3bc7-4152-9392-957590a7c059" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/interfaces/IPictures.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/interfaces/IPictures.java" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/data/LocalData.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/data/LocalData.java" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/activities/HomeActivity.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/activities/HomeActivity.java" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/fragments/capture/FormFragment.java" afterPath="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/fragments/capture/FormFragment.java" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_home.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_home.xml" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -49,8 +49,8 @@
       <file leaf-file-name="AuthenticationActivity.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/activities/AuthenticationActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="185">
-              <caret line="169" column="58" lean-forward="false" selection-start-line="168" selection-start-column="36" selection-end-line="169" selection-end-column="58" />
+            <state relative-caret-position="290">
+              <caret line="159" column="69" lean-forward="false" selection-start-line="159" selection-start-column="61" selection-end-line="159" selection-end-column="69" />
               <folding>
                 <element signature="method#onRequestPermissionsResult#0;class#AuthenticationActivity#0" expanded="false" />
               </folding>
@@ -80,6 +80,21 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="activity_home.xml" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_home.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="252">
+              <caret line="72" column="34" lean-forward="false" selection-start-line="72" selection-start-column="25" selection-end-line="72" selection-end-column="34" />
+              <folding>
+                <element signature="e#3475#6006#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+          <provider editor-type-id="android-designer2">
+            <state />
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="RetrofitClient.java" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/tools/RetrofitClient.java">
           <provider selected="true" editor-type-id="text-editor">
@@ -93,8 +108,8 @@
       <file leaf-file-name="HomeActivity.java" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/activities/HomeActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="398">
-              <caret line="92" column="118" lean-forward="false" selection-start-line="92" selection-start-column="118" selection-end-line="92" selection-end-column="118" />
+            <state relative-caret-position="522">
+              <caret line="138" column="25" lean-forward="false" selection-start-line="138" selection-start-column="25" selection-end-line="138" selection-end-column="25" />
               <folding />
             </state>
           </provider>
@@ -108,6 +123,16 @@
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="LocalData.java" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/data/LocalData.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="270">
+              <caret line="29" column="24" lean-forward="false" selection-start-line="29" selection-start-column="24" selection-end-line="29" selection-end-column="24" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -2290,7 +2315,6 @@
         <option value="$PROJECT_DIR$/app/src/main/res/values/colors.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/tasks/Login.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/interfaces/IUsers.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/data/LocalData.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/models/Token.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/activity_authentication.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/data/LocalParams.java" />
@@ -2324,11 +2348,12 @@
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/activities/TestActivity.java" />
         <option value="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/tools/AppTools.java" />
-        <option value="$PROJECT_DIR$/app/src/main/res/layout/activity_home.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/models/Picture.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/tools/RetrofitClient.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/fragments/capture/FormFragment.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/interfaces/IPictures.java" />
+        <option value="$PROJECT_DIR$/app/src/main/res/layout/activity_home.xml" />
+        <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/data/LocalData.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/activities/HomeActivity.java" />
       </list>
     </option>
@@ -2700,16 +2725,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/data/LocalData.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="546">
-          <caret line="28" column="46" lean-forward="false" selection-start-line="28" selection-start-column="46" selection-end-line="28" selection-end-column="46" />
-          <folding>
-            <element signature="imports" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/drawable/baseline_photo_camera_24_black.xml" />
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/data/LocalParams.java">
       <provider selected="true" editor-type-id="text-editor">
@@ -3035,19 +3050,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_home.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="231">
-          <caret line="17" column="32" lean-forward="false" selection-start-line="17" selection-start-column="25" selection-end-line="17" selection-end-column="32" />
-          <folding>
-            <element signature="e#3445#5976#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-      <provider editor-type-id="android-designer2">
-        <state />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/models/Token.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="126">
@@ -3061,16 +3063,6 @@
         <state relative-caret-position="378">
           <caret line="26" column="20" lean-forward="false" selection-start-line="26" selection-start-column="20" selection-end-line="26" selection-end-column="20" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/activities/AuthenticationActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="185">
-          <caret line="169" column="58" lean-forward="false" selection-start-line="168" selection-start-column="36" selection-end-line="169" selection-end-column="58" />
-          <folding>
-            <element signature="method#onRequestPermissionsResult#0;class#AuthenticationActivity#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -3089,14 +3081,6 @@
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/fragments/capture/FormFragment.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="188">
-          <caret line="146" column="0" lean-forward="false" selection-start-line="146" selection-start-column="0" selection-end-line="146" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -3126,10 +3110,49 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/fragments/capture/FormFragment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="188">
+          <caret line="146" column="0" lean-forward="false" selection-start-line="146" selection-start-column="0" selection-end-line="146" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/activity_home.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="252">
+          <caret line="72" column="34" lean-forward="false" selection-start-line="72" selection-start-column="25" selection-end-line="72" selection-end-column="34" />
+          <folding>
+            <element signature="e#3475#6006#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+      <provider editor-type-id="android-designer2">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/data/LocalData.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="29" column="24" lean-forward="false" selection-start-line="29" selection-start-column="24" selection-end-line="29" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/activities/AuthenticationActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="290">
+          <caret line="159" column="69" lean-forward="false" selection-start-line="159" selection-start-column="61" selection-end-line="159" selection-end-column="69" />
+          <folding>
+            <element signature="method#onRequestPermissionsResult#0;class#AuthenticationActivity#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/com/tutorials/camera/ui/activities/HomeActivity.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="398">
-          <caret line="92" column="118" lean-forward="false" selection-start-line="92" selection-start-column="118" selection-end-line="92" selection-end-column="118" />
+        <state relative-caret-position="522">
+          <caret line="138" column="25" lean-forward="false" selection-start-line="138" selection-start-column="25" selection-end-line="138" selection-end-column="25" />
           <folding />
         </state>
       </provider>

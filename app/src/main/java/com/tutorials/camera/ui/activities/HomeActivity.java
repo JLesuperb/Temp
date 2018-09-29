@@ -47,7 +47,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_home);
 
         FloatingActionButton syncBtn = findViewById(R.id.syncBtn);
+        FloatingActionButton btnLogout = findViewById(R.id.btnLogout);
         syncBtn.setOnClickListener(this);
+        btnLogout.setOnClickListener(this);
 
         AppCompatButton captureBtn = findViewById(R.id.captureBtn);
         captureBtn.setOnClickListener(this);
@@ -126,6 +128,15 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                         }
                     });
                 }
+                break;
+
+            case R.id.btnLogout:
+                LocalData local = new LocalData(getApplicationContext());
+                local.setString("tokenKey",null);
+                local.setString("userPass",null);
+                local.setString("userName",null);
+                startActivity(new Intent(getApplicationContext(),AuthenticationActivity.class));
+                finish();
                 break;
         }
     }

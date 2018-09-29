@@ -19,7 +19,14 @@ public class LocalData
 
     public void setString(String key,String value)
     {
-        editor.putString(key,value);
+        if(value!=null)
+        {
+            editor.putString(key,value);
+        }
+        else
+        {
+            editor.remove(key);
+        }
         editor.commit();
     }
 
