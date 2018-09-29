@@ -5,5 +5,9 @@
     <string name="login">Login</string>
     <string name="select_the_storage_folder">Select the storage folder</string>
     <string name="cancel">Cancel</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
+    <string name="input_your_code">Input your code</string>
+    <string name="input_your_description">Input your description</string>
+    <string name="click_to_scan_your_scan_the_bar_code">Click to scan your scan the bar code</string>
+    <string name="save">Save</string>
 </resources>

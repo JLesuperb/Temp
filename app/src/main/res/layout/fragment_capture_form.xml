@@ -14,6 +14,13 @@
         android:focusable="true"
         android:focusableInTouchMode="true">
 
+        <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/imagePreview"
+            android:layout_width="wrap_content"
+            android:layout_height="72dp"
+            android:layout_marginBottom="24dp"
+            android:layout_gravity="center_horizontal" />
+
         <!--Code Picture-->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -21,10 +28,11 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
             <android.support.v7.widget.AppCompatEditText
+                android:id="@+id/codeEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:hint="@string/user_name" />
+                android:inputType="text"
+                android:hint="@string/input_your_code" />
         </android.support.design.widget.TextInputLayout>
 
         <!--Description Picture-->
@@ -34,10 +42,15 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
             <android.support.v7.widget.AppCompatEditText
+                android:id="@+id/descEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:hint="@string/user_name" />
+                android:maxLines="5"
+                android:lines="5"
+                android:minLines="5"
+                android:scrollbars="vertical"
+                android:inputType="text"
+                android:hint="@string/input_your_description" />
         </android.support.design.widget.TextInputLayout>
 
         <!--Description BarCode-->
@@ -51,14 +64,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
-                android:hint="@string/user_name" />
+                android:hint="@string/click_to_scan_your_scan_the_bar_code" />
         </android.support.design.widget.TextInputLayout>
 
         <android.support.v7.widget.AppCompatButton
+            android:id="@+id/saveBtn"
+            android:text="@string/save"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <android.support.v7.widget.AppCompatButton
+            android:id="@+id/cancelBtn"
+            android:text="@string/cancel"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

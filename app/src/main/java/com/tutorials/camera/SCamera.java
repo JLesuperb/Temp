@@ -1,12 +1,15 @@
 package com.tutorials.camera;
 
 import android.app.Application;
+import android.os.Environment;
 
 import com.tutorials.camera.helpers.DbHelper;
 import com.tutorials.camera.models.DaoMaster;
 import com.tutorials.camera.models.DaoSession;
 
 import org.jetbrains.annotations.Contract;
+
+import java.io.File;
 
 public class SCamera extends Application
 {
@@ -42,7 +45,10 @@ public class SCamera extends Application
     }
 
     public String getFolderName() {
-        return folderName;
+        String root = Environment.getExternalStorageDirectory().toString();
+        File parentFile = new File(root,"SCamera");
+        File file = new File(parentFile,folderName);
+        return file.getAbsolutePath();
     }
 
     public void setFolderName(String folderName) {

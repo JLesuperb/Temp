@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.AppCompatButton;
+import android.support.v7.widget.LinearLayoutCompat;
 import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -106,11 +107,13 @@ public class CaptureFragment extends _BaseFragment implements SurfaceHolder.Call
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2)
     {
         camera = Camera.open();
-        Camera.Parameters param = camera.getParameters();
-        param.setPreviewSize(352, 288);
+        /*Camera.Parameters param = camera.getParameters();
+        param.setPreviewSize(352, 288);*/
         /*camera.setParameters(param);*/
+        /*camera.setDisplayOrientation();*/
         try
         {
+            camera.setDisplayOrientation(90);
             camera.setPreviewDisplay(surfaceHolder);
             camera.startPreview();
         }
@@ -124,9 +127,13 @@ public class CaptureFragment extends _BaseFragment implements SurfaceHolder.Call
     @Override
     public void surfaceDestroyed(SurfaceHolder surfaceHolder)
     {
-        camera.stopPreview();
-        camera.release();
-        camera = null;
+        if(camera!=null)
+        {
+            camera.stopPreview();
+            camera.release();
+            camera = null;
+        }
+
     }
 
     @Override
@@ -136,29 +143,51 @@ public class CaptureFragment extends _BaseFragment implements SurfaceHolder.Call
         {
             case R.id.captureBtn:
                 if(camera!=null)
-                {
-                    camera.takePicture(null, null, new Camera.PictureCallback()
-                    {
+                    camera.takePicture(null, null, new Camera.PictureCallback() {
                         @Override
-                        public void onPictureTaken(byte[] bytes, Camera camera)
-                        {
-                            SCamera.getInstance().setBytes(bytes);
-                            if(getActivity()!=null)
+                        public void onPictureTaken(final byte[] bytes, Camera camera) {
+                            if (getView() != null && getActivity() != null)
                             {
-                                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                                ConfirmationFragment fragment = ConfirmationFragment.getInstance();
-                                fragmentManager
-                                        .beginTransaction()
-                                        .hide(CaptureFragment.this)
-                                        .add(R.id.fragment_container, fragment)
-                                        .addToBackStack(null)
-                                        .commit();
-                                refreshCamera();
+                                final LinearLayoutCompat confirmContainer = getView().findViewById(R.id.confirmContainer);
+                                confirmContainer.setVisibility(View.VISIBLE);
 
+                                AppCompatButton okBtn = getView().findViewById(R.id.okBtn);
+                                okBtn.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view)
+                                    {
+                                        SCamera.getInstance().setBytes(bytes);
+                                        refreshCamera();
+                                        surfaceHolder.removeCallback(CaptureFragment.this);
+                                        /*if (CaptureFragment.this.camera != null)
+                                        {
+                                            CaptureFragment.this.camera.stopPreview();
+                                            CaptureFragment.this.camera.release();
+                                            CaptureFragment.this.camera = null;
+                                        }*/
+
+                                        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                        FormFragment fragment = FormFragment.getInstance();
+                                        fragmentManager
+                                                .beginTransaction()
+                                                .hide(CaptureFragment.this)
+                                                .add(R.id.fragment_container, fragment)
+                                                .addToBackStack(null)
+                                                .commit();
+                                    }
+                                });
+
+                                AppCompatButton cancelBtn = getView().findViewById(R.id.cancelBtn);
+                                cancelBtn.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        refreshCamera();
+                                        confirmContainer.setVisibility(View.GONE);
+                                    }
+                                });
                             }
                         }
                     });
-                }
                 break;
         }
     }
