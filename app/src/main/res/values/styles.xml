@@ -14,6 +14,15 @@
         <item name="android:windowContentTransitions" tools:ignore="NewApi">true</item>
     </style>
 
+    <style name="MyDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!--buttons color-->
+        <item name="colorAccent">@color/colorPrimary</item>
+        <!--title and message color-->
+        <item name="android:textColorPrimary">@android:color/black</item>
+        <!--dialog background-->
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
@@ -21,6 +30,10 @@
         <item name="colorAccent">@color/white</item>
         <item name="android:textColorPrimary">@color/iron</item>
         <item name="android:background">@color/primary</item>
+    </style>
+
+    <style name="MDialog" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowNoTitle">true</item>
     </style>
 
 </resources>

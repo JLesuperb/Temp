@@ -74,11 +74,12 @@ public class FormFragment extends _BaseFragment implements View.OnClickListener 
                     if(getActivity()!=null)
                     {
                         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                        ZXingFragment _fragment = new ZXingFragment();
                         CodeBarFragment fragment = CodeBarFragment.getInstance();
                         fragmentManager
                                 .beginTransaction()
                                 .hide(FormFragment.this)
-                                .add(R.id.fragment_container, fragment)
+                                .add(R.id.fragment_container, _fragment)
                                 .addToBackStack(null)
                                 .commit();
                     }

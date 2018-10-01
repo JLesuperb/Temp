@@ -2,15 +2,23 @@ package com.tutorials.camera.ui.activities;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
+import android.support.v7.widget.AppCompatSpinner;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -19,21 +27,23 @@ import com.tutorials.camera.R;
 import com.tutorials.camera.data.LocalData;
 import com.tutorials.camera.data.LocalParams;
 import com.tutorials.camera.interfaces.IUsers;
+import com.tutorials.camera.models.Mode;
 import com.tutorials.camera.models.Token;
 import com.tutorials.camera.models.User;
 import com.tutorials.camera.tools.Permissions;
 import com.tutorials.camera.tools.RetrofitClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AuthenticationActivity extends AppCompatActivity implements View.OnClickListener
-{
+public class AuthenticationActivity extends AppCompatActivity implements View.OnClickListener {
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState)
-    {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
         initViews();
@@ -41,60 +51,91 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
 
     }
 
-    private void launch()
-    {
-        if(Permissions.checkCameraPermission(getApplicationContext()))
-        {
-            if(Permissions.checkReadingExternalPermission(getApplicationContext()))
-            {
-                if(Permissions.checkWritingExternalPermission(getApplicationContext()))
-                {
+    private void launch() {
+        if (Permissions.checkCameraPermission(getApplicationContext())) {
+            if (Permissions.checkReadingExternalPermission(getApplicationContext())) {
+                if (Permissions.checkWritingExternalPermission(getApplicationContext())) {
                     initViews();
-                }
-                else
-                {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                    {
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         ActivityCompat.requestPermissions(this,
                                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, LocalParams.WRITE_EXTERNAL_STORAGE);
-                    }
-                    else
-                    {
+                    } else {
                         finish();
                     }
 
                 }
-            }
-            else
-            {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                {
+            } else {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     ActivityCompat.requestPermissions(this,
                             new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, LocalParams.READ_EXTERNAL_QUERY);
-                }
-                else
-                {
+                } else {
                     finish();
                 }
             }
-        }
-        else
-        {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-            {
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.CAMERA}, LocalParams.CAMERA);
-            }
-            else
-            {
+            } else {
                 finish();
             }
         }
     }
 
-    private void initViews()
-    {
+    private void initViews() {
         findViewById(R.id.btn_login).setOnClickListener(this);
+        AppCompatSpinner modeSpr = findViewById(R.id.modeSpr);
+        List<Mode> list = new ArrayList<>();
+        list.add(new Mode("Auto", Mode.ModeType.Auto));
+        list.add(new Mode("Online", Mode.ModeType.Online));
+        list.add(new Mode("Offline", Mode.ModeType.Offline));
+
+        FloatingActionButton configBtn = findViewById(R.id.configBtn);
+        configBtn.setOnClickListener(this);
+
+        ArrayAdapter<Mode> dataAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, list);
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        modeSpr.setAdapter(dataAdapter);
+    }
+
+    private void loadConfigDialog()
+    {
+        LayoutInflater layoutInflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        //final View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.prompt_server_address, null);View view = layoutInflater.inflate(R.layout.mylayout, item );
+        final View view = layoutInflater.inflate(R.layout.prompt_server_address, null );
+        AppCompatEditText addressEdt = view.findViewById(R.id.addressEdt);
+        addressEdt.setText(new LocalData(getApplicationContext()).getString("serverAddress"));
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Server Config");
+        builder.setCancelable(false);
+        builder.setView(view);
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i)
+            {
+                AppCompatEditText addressEdt = view.findViewById(R.id.addressEdt);
+                if(addressEdt.getText()!=null && !addressEdt.getText().toString().trim().isEmpty())
+                {
+                    new LocalData(getApplicationContext()).setString("serverAddress",addressEdt.getText().toString().trim());
+                    dialogInterface.dismiss();
+                }
+                else
+                {
+                    dialogInterface.cancel();
+                }
+
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     @Override
@@ -142,7 +183,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                     }
                     else
                     {
-                        IUsers iUsers = RetrofitClient.getRetrofitInstance().create(IUsers.class);
+                        IUsers iUsers = RetrofitClient.getRetrofitInstance(localData.getString("serverAddress")).create(IUsers.class);
                         Call<Token> call = iUsers.login(new User(userName,userPass));
                         call.enqueue(new Callback<Token>() {
                             @Override
@@ -195,7 +236,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                             public void onFailure(@NonNull Call<Token> call, @NonNull Throwable t)
                             {
                                 progressDialog.dismiss();
-                                Toast.makeText(getApplicationContext(),"Connection Error",Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(),"Connection Not found",Toast.LENGTH_LONG).show();
                             }
                         });
 
@@ -212,6 +253,9 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                         userPassEdt.setError("Password is required");
                     }
                 }
+                break;
+            case R.id.configBtn:
+                loadConfigDialog();
                 break;
         }
     }

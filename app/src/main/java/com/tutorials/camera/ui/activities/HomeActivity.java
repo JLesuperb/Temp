@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -79,25 +80,28 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 ProgressDialog progressDialog = new ProgressDialog(this,R.style.AppTheme_Dark_Dialog);
                 progressDialog.setCancelable(false);
                 //progressDialog.show();
-                PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
+                final PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
                 List<Picture> pictures = pictureDao.loadAll();
                 LocalData localData = new LocalData(getApplicationContext());
-                for(Picture picture : pictures)
+                String root = Environment.getExternalStorageDirectory().toString();
+                for(final Picture picture : pictures)
                 {
-                    IPictures iPictures = RetrofitClient.getRetrofitInstance().create(IPictures.class);
+                    IPictures iPictures = RetrofitClient.getRetrofitInstance(localData.getString("serverAddress")).create(IPictures.class);
                     String token = String.format("Bearer %s", localData.getString("tokenKey"));
                     File file = new File(picture.getFilePath());
 
                     RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
                     MultipartBody.Part body = MultipartBody.Part.createFormData("Picture", file.getName(), reqFile);
-                    //********** Recoded
-                    //RequestBody folder = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getFolder());
-                    RequestBody folder = RequestBody.create(okhttp3.MultipartBody.FORM, file.getParentFile().getName());
 
-                    /*RequestBody.create(
-                            okhttp3.MultipartBody.FORM, descriptionString);*/
+                    RequestBody code = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getCode());
+                    RequestBody description = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getDescription());
+                    RequestBody barCode = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getBarCode());
+                    String phoneFolder = picture.getFilePath().replace(root,"");
+                    RequestBody filePath = RequestBody.create(okhttp3.MultipartBody.FORM, phoneFolder);
+                    RequestBody userId = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getUserId().toString());
+                    RequestBody folderName = RequestBody.create(okhttp3.MultipartBody.FORM, file.getParentFile().getName());
 
-                    Call<ResponseBody> call = iPictures.upload(token,body,folder);
+                    Call<ResponseBody> call = iPictures.upload(token,body,code,description,barCode,filePath,userId,folderName);
                     call.enqueue(new Callback<ResponseBody>() {
                         @Override
                         public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response)
@@ -105,6 +109,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                             if(response.isSuccessful())
                             {
                                 Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_LONG).show();
+                                picture.setUploaded(true);
+                                pictureDao.update(picture);
                             }
                             else
                             {
@@ -124,7 +130,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t)
                         {
-                            Toast.makeText(getApplicationContext(),new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(),"Server not found",Toast.LENGTH_LONG).show();
                         }
                     });
                 }
@@ -143,8 +149,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     private void capturePicture()
     {
-        startActivity(new Intent(HomeActivity.this,CameraActivity.class));
         SCamera.getInstance().setFolderName(branchesSpr.getSelectedItem().toString());
+        startActivity(new Intent(HomeActivity.this,CaptureActivity.class));
     }
 
     @Override

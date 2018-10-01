@@ -10,4 +10,6 @@
     <string name="input_your_description">Input your description</string>
     <string name="click_to_scan_your_scan_the_bar_code">Click to scan your scan the bar code</string>
     <string name="save">Save</string>
+    <string name="mode">Mode</string>
+    <string name="enter_comments_optional">Enter comments(Optional)</string>
 </resources>

@@ -2,6 +2,9 @@ package com.tutorials.camera.tools;
 
 import android.support.annotation.NonNull;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Random;
 
 public class AppTools
@@ -21,5 +24,30 @@ public class AppTools
             buffer.append((char) randomLimitedInt);
         }
         return buffer.toString();
+    }
+
+    public static void clean(File path)
+    {
+        if (path.isDirectory())
+        {
+            File[] entries = path.listFiles();
+            if (entries != null)
+            {
+                for (File entry : entries)
+                {
+                    clean(entry);
+                }
+            }
+        }
+        if(!path.delete())
+        {
+            try
+            {
+                throw new IOException("Failed to delete " + path);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

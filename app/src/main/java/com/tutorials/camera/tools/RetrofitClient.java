@@ -18,4 +18,15 @@ public class RetrofitClient
         }
         return retrofit;
     }
+
+    public static Retrofit getRetrofitInstance(String serverAddress) {
+        if (retrofit == null) {
+
+            retrofit = new retrofit2.Retrofit.Builder()
+                    .baseUrl(serverAddress)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build();
+        }
+        return retrofit;
+    }
 }

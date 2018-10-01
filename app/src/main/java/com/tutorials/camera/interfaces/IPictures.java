@@ -14,5 +14,8 @@ public interface IPictures
     @Multipart
     @POST("pictures")
     Call<ResponseBody> upload(@Header("Authorization") String authorization,
-                              @Part MultipartBody.Part file,@Part("Directory") RequestBody name);
+                              @Part MultipartBody.Part file,@Part("PictureCode") RequestBody code
+            ,@Part("PictureDesc") RequestBody description,@Part("PictureBarCode") RequestBody barCode
+            ,@Part("PhonePath") RequestBody filePath,@Part("UserFId") RequestBody userId
+            ,@Part("Directory") RequestBody folder);
 }
