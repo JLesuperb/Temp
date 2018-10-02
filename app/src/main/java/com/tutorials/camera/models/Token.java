@@ -4,6 +4,9 @@ import com.google.gson.annotations.SerializedName;
 
 public class Token
 {
+    @SerializedName("UserId")
+    private Long userId;
+
     @SerializedName("AccessToken")
     private String tokenString;
 
@@ -18,10 +21,6 @@ public class Token
 
     public String getTokenString() {
         return tokenString;
-    }
-
-    public void setTokenString(String tokenString) {
-        this.tokenString = tokenString;
     }
 
     public String getMessage() {
@@ -40,11 +39,7 @@ public class Token
         this.status = status;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public Long getUserId() {
+        return userId;
     }
 }

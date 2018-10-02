@@ -30,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <android.support.v7.widget.AppCompatEditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/codeEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -44,15 +44,16 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <android.support.v7.widget.AppCompatEditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/descEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="5"
                 android:lines="5"
+                android:gravity="top"
                 android:minLines="5"
                 android:scrollbars="vertical"
-                android:inputType="text"
+                android:inputType="textMultiLine"
                 android:hint="@string/input_your_description" />
         </android.support.design.widget.TextInputLayout>
 
@@ -62,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <android.support.v7.widget.AppCompatEditText
+            <android.support.design.widget.TextInputEditText
                 android:id="@+id/barCodeEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

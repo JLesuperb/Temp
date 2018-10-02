@@ -6,6 +6,8 @@ import android.os.Environment;
 import com.tutorials.camera.helpers.DbHelper;
 import com.tutorials.camera.models.DaoMaster;
 import com.tutorials.camera.models.DaoSession;
+import com.tutorials.camera.models.Mode;
+import com.tutorials.camera.models.User;
 
 import org.jetbrains.annotations.Contract;
 
@@ -14,6 +16,9 @@ import java.io.File;
 public class SCamera extends Application
 {
     private static SCamera _Instance;
+    private User currentUser;
+    private Mode mode;
+
     @Contract(pure = true)
     public static SCamera getInstance() { return _Instance; }
 
@@ -60,5 +65,21 @@ public class SCamera extends Application
 
     public void setFolderName(String folderName) {
         this.folderName = folderName;
+    }
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
+    public Mode getMode() {
+        return mode;
     }
 }

@@ -8,6 +8,8 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 
 public interface IUsers
@@ -25,4 +27,7 @@ public interface IUsers
     @POST("login")
     //@FormUrlEncoded
     Call<Token> login(@Body User user);
+
+    @GET("user")
+    Call<User> get(@Header("Authorization") String authorization);
 }

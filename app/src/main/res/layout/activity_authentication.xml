@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:fitsSystemWindows="true">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.activities.AuthenticationActivity">
 
     <android.support.v7.widget.LinearLayoutCompat
         android:orientation="vertical"
@@ -18,8 +20,9 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="72dp"
-            android:layout_marginBottom="24dp"
-            android:layout_gravity="center_horizontal" />
+            android:layout_marginBottom="12dp"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/todo" />
 
         <!--Mode -->
         <android.support.v7.widget.LinearLayoutCompat
@@ -51,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/userNameEdt"
+            <android.support.design.widget.TextInputEditText android:id="@+id/userNameEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
@@ -64,7 +67,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/userPassEdt"
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/userPassEdt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPassword"
@@ -88,6 +92,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_delete" />
+        app:srcCompat="@drawable/round_settings_white_24" />
 
 </android.support.design.widget.CoordinatorLayout>
