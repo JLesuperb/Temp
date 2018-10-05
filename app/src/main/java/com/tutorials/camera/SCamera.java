@@ -34,14 +34,10 @@ public class SCamera extends Application
     @Override
     public void onCreate() {
         super.onCreate();
-        mDaoSession = new DaoMaster(
-                new DbHelper(this, "SCamera.db").getWritableDb()).newSession();
+        mDaoSession = new DaoMaster(new DbHelper(this, "SCamera.db").getWritableDb()).newSession();
         LocalData localData = new LocalData(getApplicationContext());
         if(localData.getString("serverAddress")!=null)
             serverString = localData.getString("serverAddress");
-
-
-
         _Instance = this;
     }
 

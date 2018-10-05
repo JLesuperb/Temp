@@ -27,28 +27,17 @@ public class LocalData
         {
             editor.remove(key);
         }
+        editor.apply();
         editor.commit();
+        editor.apply();
     }
 
     public String getString(String key)
     {
         if(preferences.contains(key))
-            return preferences.getString(key,"");
+            return preferences.getString(key,null);
         else
             return null;
     }
 
-    public void setBoolean(String key,Boolean value)
-    {
-        editor.putBoolean(key,value);
-        editor.commit();
-    }
-
-    public Boolean getBoolean(String key)
-    {
-        if(preferences.contains(key))
-            return preferences.getBoolean(key,false);
-        else
-            return null;
-    }
 }

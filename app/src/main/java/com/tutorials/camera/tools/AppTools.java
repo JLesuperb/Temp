@@ -1,16 +1,10 @@
 package com.tutorials.camera.tools;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.AppCompatEditText;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.Toast;
 
 import com.tutorials.camera.R;
@@ -18,11 +12,9 @@ import com.tutorials.camera.SCamera;
 import com.tutorials.camera.data.LocalData;
 import com.tutorials.camera.interfaces.ILink;
 import com.tutorials.camera.models.Link;
-import com.tutorials.camera.ui.activities.AuthenticationActivity;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Random;
 
 import retrofit2.Call;
@@ -108,7 +100,7 @@ public class AppTools
                     {
                         SCamera.getInstance().setServerString(link.getLinkText());
                         new LocalData(activity).setString("serverAddress",link.getLinkText());
-                        Toast.makeText(activity,link.getLinkText(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(activity,SCamera.getInstance().getServerString(),Toast.LENGTH_LONG).show();
                     }
                 }
             }
