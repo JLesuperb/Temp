@@ -32,6 +32,10 @@
         <activity android:name=".ui.activities.CaptureActivity" />
         <activity android:name=".ui.activities.ZXingActivity" />
 
+        <service
+            android:name=".services.UploadService"
+            android:label="@string/upload_service" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.tutorials.camera"

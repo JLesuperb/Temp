@@ -14,4 +14,14 @@
     <string name="enter_comments_optional">Enter the server link</string>
     <string name="todo">TODO</string>
     <string name="capture">Capture</string>
+    <string name="clear_all_offline_login">Clear all offline login</string>
+    <string name="upload_service">Upload Service</string>
+    <string name="soficom_transfert">Soficom Transfert</string>
+    <string name="archive">Archive</string>
+    <string name="ios">IOS</string>
+    <string name="android">Android</string>
+    <string name="windows">Windows</string>
+    <string name="auto">Auto</string>
+    <string name="online">Online</string>
+    <string name="offline">Offline</string>
 </resources>

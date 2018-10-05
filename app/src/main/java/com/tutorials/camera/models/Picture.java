@@ -46,10 +46,14 @@ public class Picture
     @SerializedName("PictureName")
     private String name;
 
-    @Generated(hash = 1715774908)
+    @Property(nameInDb = "DirectoryId")
+    @SerializedName("DirectoryFId")
+    private Long folderId;
+
+    @Generated(hash = 2007807456)
     public Picture(Long id, String code, String description, String barCode,
             String filePath, Long userId, String folder, Boolean uploaded,
-            String name) {
+            String name, Long folderId) {
         this.id = id;
         this.code = code;
         this.description = description;
@@ -59,6 +63,7 @@ public class Picture
         this.folder = folder;
         this.uploaded = uploaded;
         this.name = name;
+        this.folderId = folderId;
     }
 
     @Generated(hash = 1602548376)
@@ -135,5 +140,13 @@ public class Picture
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getFolderId() {
+        return this.folderId;
+    }
+
+    public void setFolderId(Long folderId) {
+        this.folderId = folderId;
     }
 }

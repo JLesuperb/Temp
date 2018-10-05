@@ -1,11 +1,13 @@
 package com.tutorials.camera.ui.activities;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.view.View;
@@ -27,6 +29,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import id.zelory.compressor.Compressor;
+
 public class CaptureActivity extends AppCompatActivity
         implements
         View.OnClickListener,
@@ -37,6 +41,7 @@ public class CaptureActivity extends AppCompatActivity
 
     private File currentFile = null;
     private File tempFile = null;
+    private Boolean isQuery = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -61,11 +66,12 @@ public class CaptureActivity extends AppCompatActivity
             @Override
             public void onFocusChange(View view, boolean b)
             {
-                if(b)
+                if(b && !isQuery)
                 {
                     dispatchTakeBarCodeIntent();
+                    isQuery = true;
+                    view.clearFocus();
                 }
-                view.clearFocus();
             }
         });
     }
@@ -82,12 +88,17 @@ public class CaptureActivity extends AppCompatActivity
                 try
                 {
                     tempFile = new File(path,String.format("%s.jpg",AppTools.getUniqueString()));
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
+                    //tempFile = new File(path,"_temp.jpg");
+                    Uri imageUri = FileProvider.getUriForFile(this,"com.tutorials.camera",tempFile);
+                    //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                 }
                 catch (Exception ex)
                 {
                     tempFile = null;
+                    Toast.makeText(getApplicationContext(), ex.getMessage(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), ex.getMessage(),Toast.LENGTH_LONG).show();
                     Toast.makeText(getApplicationContext(), ex.getMessage(),Toast.LENGTH_LONG).show();
                 }
             }
@@ -112,9 +123,23 @@ public class CaptureActivity extends AppCompatActivity
             {
                 if(tempFile !=null)
                 {
-                    currentFile = tempFile;
-                    AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
-                    Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
+                    try
+                    {
+                        File path = new File(SCamera.getInstance().getFolderName(".tmp"),String.format("%s",AppTools.getUniqueString()));
+                        currentFile = new Compressor(this)
+                                .setDestinationDirectoryPath(path.getAbsolutePath())
+                                .setCompressFormat(Bitmap.CompressFormat.WEBP)
+                                .compressToFile(tempFile);
+                        //currentFile = new Compressor(this).setDestinationDirectoryPath(path.getAbsolutePath()).compressToFile(tempFile);
+                        //currentFile = tempFile;
+                        AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
+                        Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
+                    }
+                    catch (IOException e)
+                    {
+                        Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+                        e.printStackTrace();
+                    }
                 }
             }
             else
@@ -124,14 +149,18 @@ public class CaptureActivity extends AppCompatActivity
             }
 
         }
-        else if (requestCode == REQUEST_BARCODE_CAPTURE && resultCode == RESULT_OK)
+        else if (requestCode == REQUEST_BARCODE_CAPTURE)
         {
-            Bundle extras = data.getExtras();
-            if(extras!=null)
+            isQuery = false;
+            if(resultCode == RESULT_OK)
             {
-                String text = extras.getString("data");
-                TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
-                barCodeEdt.setText(text);
+                Bundle extras = data.getExtras();
+                if(extras!=null)
+                {
+                    String text = extras.getString("data");
+                    TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
+                    barCodeEdt.setText(text);
+                }
             }
         }
     }
@@ -153,50 +182,95 @@ public class CaptureActivity extends AppCompatActivity
     private void saveData()
     {
         SCamera app = SCamera.getInstance();
-        File path = new File(app.getFolderName());
+        TextInputEditText codeEdt = findViewById(R.id.codeEdt);
+        codeEdt.setError(null);
+        TextInputEditText descEdt = findViewById(R.id.descEdt);
+        descEdt.setError(null);
+        if(codeEdt.getText()!=null && descEdt.getText()!=null)
         {
-            try
+            String codeText = codeEdt.getText().toString();
+            String descText = codeEdt.getText().toString();
+            if(!codeText.trim().isEmpty() && !descText.trim().isEmpty())
             {
-
-                if(path.mkdirs() || path.exists())
+                File path = new File(app.getFolderName());
                 {
-                    File file = new File(path,currentFile.getName());
-                    copyFile(currentFile.getAbsolutePath(),file.getAbsolutePath());
+                    try
+                    {
 
-                    TextInputEditText codeEdt = findViewById(R.id.codeEdt);
-                    TextInputEditText descEdt = findViewById(R.id.descEdt);
-                    TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
+                        if(path.mkdirs() || path.exists())
+                        {
+                            //currentFile.renameTo(new File(String.format("%s.jpg",AppTools.getUniqueString())));
 
-                    Picture picture = new Picture();
-                    if(codeEdt.getText()!=null)
-                        picture.setCode(codeEdt.getText().toString());
-                    if(descEdt.getText()!=null)
-                        picture.setDescription(descEdt.getText().toString());
-                    picture.setFilePath(file.getAbsolutePath());
-                    picture.setFolder(SCamera.getInstance().getFolderName());
+                            /*if (currentFile.exists())
+                                currentFile.delete();
+                            currentFile.createNewFile();
+                            FileOutputStream fos = new FileOutputStream(currentFile);
+                            fos.write(fileData);
+                            fos.flush();
+                            fos.close();*/
 
-                    if(barCodeEdt.getText()!=null)
-                        picture.setBarCode(barCodeEdt.getText().toString());
+                            File file = new File(path,currentFile.getName());
+                            copyFile(currentFile.getAbsolutePath(),file.getAbsolutePath());
 
-                    picture.setUploaded(false);
-                    picture.setUserId(app.getCurrentUser().getUserId());
 
-                    PictureDao pictureDao = app.getDaoSession().getPictureDao();
-                    pictureDao.insert(picture);
+                            TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
 
-                    Toast.makeText(getApplicationContext(),"Saved",Toast.LENGTH_LONG).show();
-                    finish();
+                            Picture picture = new Picture();
+                            picture.setCode(codeEdt.getText().toString());
+                            picture.setDescription(descEdt.getText().toString());
+
+                            picture.setFilePath(file.getAbsolutePath());
+                            picture.setFolderId(SCamera.getInstance().getFolder().getFolderId());
+                            picture.setFolder(SCamera.getInstance().getFolderName());
+
+                            if(barCodeEdt.getText()!=null)
+                                picture.setBarCode(barCodeEdt.getText().toString());
+
+                            picture.setUploaded(false);
+                            picture.setUserId(app.getCurrentUser().getUserId());
+
+                            PictureDao pictureDao = app.getDaoSession().getPictureDao();
+                            pictureDao.insert(picture);
+
+                            Toast.makeText(getApplicationContext(),"Saved",Toast.LENGTH_LONG).show();
+                            finish();
+                        }
+                    }
+                    catch (FileNotFoundException e)
+                    {
+                        e.printStackTrace();
+                    }
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
                 }
             }
-            catch (FileNotFoundException e)
+            else
             {
-                e.printStackTrace();
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
+                if(codeText.trim().isEmpty())
+                {
+                    codeEdt.setError("Please insert the code");
+                }
+                if(descText.trim().isEmpty())
+                {
+                    descEdt.setError("Please insert the description");
+                }
             }
         }
+        else
+        {
+            if(codeEdt.getText()==null)
+            {
+                codeEdt.setError("Please insert the code");
+            }
+            if(descEdt.getText()==null)
+            {
+                descEdt.setError("Please insert the description");
+            }
+        }
+
+
     }
 
     private void copyFile(String from, String to) throws IOException

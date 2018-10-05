@@ -7,7 +7,7 @@ public class Permissions
 {
     public static boolean checkCameraPermission(Context context)
     {
-        String permission = "android.permission.READ_EXTERNAL_STORAGE";
+        String permission = "android.permission.CAMERA";
         int res = context.checkCallingOrSelfPermission(permission);
         return (res == PackageManager.PERMISSION_GRANTED);
     }

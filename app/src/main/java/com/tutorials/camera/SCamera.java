@@ -3,9 +3,11 @@ package com.tutorials.camera;
 import android.app.Application;
 import android.os.Environment;
 
+import com.tutorials.camera.data.LocalData;
 import com.tutorials.camera.helpers.DbHelper;
 import com.tutorials.camera.models.DaoMaster;
 import com.tutorials.camera.models.DaoSession;
+import com.tutorials.camera.models.Folder;
 import com.tutorials.camera.models.Mode;
 import com.tutorials.camera.models.User;
 
@@ -18,6 +20,9 @@ public class SCamera extends Application
     private static SCamera _Instance;
     private User currentUser;
     private Mode mode;
+    private String token;
+    private String serverString;
+    private Folder folder;
 
     @Contract(pure = true)
     public static SCamera getInstance() { return _Instance; }
@@ -31,6 +36,11 @@ public class SCamera extends Application
         super.onCreate();
         mDaoSession = new DaoMaster(
                 new DbHelper(this, "SCamera.db").getWritableDb()).newSession();
+        LocalData localData = new LocalData(getApplicationContext());
+        if(localData.getString("serverAddress")!=null)
+            serverString = localData.getString("serverAddress");
+
+
 
         _Instance = this;
     }
@@ -81,5 +91,29 @@ public class SCamera extends Application
 
     public Mode getMode() {
         return mode;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public String getServerString() {
+        return serverString;
+    }
+
+    public void setServerString(String serverString) {
+        this.serverString = serverString;
+    }
+
+    public void setFolder(Folder folder) {
+        this.folder = folder;
+    }
+
+    public Folder getFolder() {
+        return folder;
     }
 }

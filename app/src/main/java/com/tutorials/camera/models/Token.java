@@ -16,6 +16,9 @@ public class Token
     @SerializedName("UserName")
     private String userName;
 
+    @SerializedName("BranchFId")
+    private Long branchId;
+
     @SerializedName("status")
     private String status;
 
@@ -41,5 +44,13 @@ public class Token
 
     public Long getUserId() {
         return userId;
+    }
+
+    public Long getBranchId() {
+        return branchId;
+    }
+
+    public void setBranchId(Long branchId) {
+        this.branchId = branchId;
     }
 }
