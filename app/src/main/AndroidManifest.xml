@@ -19,18 +19,35 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         android:name=".SCamera">
-        <activity android:name=".ui.activities.AuthenticationActivity">
+        <activity
+            android:name=".ui.activities.AuthenticationActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.activities.CameraActivity" />
-        <activity android:name=".ui.activities.HomeActivity" />
-        <activity android:name=".ui.activities.TestActivity" />
-        <activity android:name=".ui.activities.AndroidSurfaceView"/>
-        <activity android:name=".ui.activities.CaptureActivity" />
-        <activity android:name=".ui.activities.ZXingActivity" />
+        <activity
+            android:name=".ui.activities.CameraActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
+            android:name=".ui.activities.HomeActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
+            android:name=".ui.activities.TestActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
+            android:name=".ui.activities.AndroidSurfaceView"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
+            android:name=".ui.activities.CaptureActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
+            android:name=".ui.activities.ZXingActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
+            android:name=".ui.activities.GalleryActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
 
         <service
             android:name=".services.UploadService"

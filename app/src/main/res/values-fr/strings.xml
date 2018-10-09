@@ -12,9 +12,9 @@
     <string name="click_to_scan_your_scan_the_bar_code">Cliquez pour scanner votre code-barres</string>
     <string name="save">Sauvegarder</string>
     <string name="mode">Mode</string>
-    <string name="enter_comments_optional">Enter the server link</string>
+    <string name="enter_comments_optional">Entrez le lien du serveur</string>
     <string name="todo">TODO</string>
-    <string name="capture">Capture</string>
+    <string name="capture">Capturer</string>
     <string name="clear_all_offline_login">Effacer toutes les connexions hors ligne</string>
     <string name="upload_service">Upload Service</string>
     <string name="soficom_transfert">Soficom Transfert</string>
@@ -25,4 +25,11 @@
     <string name="auto">Auto</string>
     <string name="online">En ligne</string>
     <string name="offline">Hors ligne</string>
+    <string name="parameters">Parametres</string>
+    <string name="server_config">Configuration du serveur</string>
+    <string name="folders_sync">Synchronisation des dossiers</string>
+    <string name="default_folder">Définir un dossier par défaut</string>
+    <string name="please_select_folder">Sélectionner le dossier</string>
+    <string name="server_updated">Le serveur est à jour</string>
+    <string name="gallery">Voir les images non envoyées</string>
 </resources>

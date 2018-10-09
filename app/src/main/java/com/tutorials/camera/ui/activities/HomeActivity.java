@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
 import com.tutorials.camera.custom.MySpinnerAdapter;
+import com.tutorials.camera.data.LocalData;
 import com.tutorials.camera.data.LocalParams;
 import com.tutorials.camera.interfaces.IFolders;
 import com.tutorials.camera.interfaces.IUsers;
@@ -83,7 +85,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             progressDialog.setMessage("Authenticating...");
             progressDialog.show();
 
-            IUsers iUsers = RetrofitClient.getRetrofitInstance(SCamera.getInstance().getServerString()).create(IUsers.class);
+            IUsers iUsers = RetrofitClient.getRetrofitInstance(HomeActivity.this).create(IUsers.class);
             String token = String.format("Bearer %s", user.getToken());
             Call<User> call = iUsers.get(token);
 
@@ -118,24 +120,37 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+
+
     private void loadList()
     {
         List<Folder> list = new ArrayList<>();
 
         FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
         List<Folder> folders = folderDao.loadAll();
+        String defaultFolder = new LocalData(this).getString("defaultFolder");
+        Integer selected = Integer.MIN_VALUE;
         if(folders.size()>0)
         {
-            list.add(new Folder(Long.MIN_VALUE," "));
-            list.addAll(folders);
+            list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_folder)));
+            //list.addAll(folders);
+            for(int i=0;i<folders.size();i++)
+            {
+                list.add(folders.get(i));
+                if(defaultFolder!=null && defaultFolder.equals(folders.get(i).getFolderString()))
+                {
+                    selected = i;
+                }
+            }
         }
 
-        /*ArrayAdapter<Folder> dataAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, list);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        branchesSpr.setAdapter(dataAdapter);*/
         MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this,list);
         branchesSpr.setAdapter(mySpinnerAdapter);
+
+        if(selected!=Integer.MIN_VALUE)
+        {
+            branchesSpr.setSelection((selected+1));
+        }
     }
 
     @Override
@@ -143,7 +158,6 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     {
         super.onResume();
         setPending();
-        branchesSpr.setSelection(0);
     }
 
     @Override
@@ -153,10 +167,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         {
             case R.id.configBtn:
                 //AppTools.loadConfigDialog(this);
-                String[] colors = {"Server config", "Folder config"};
+                String[] colors = {getString(R.string.server_config),
+                        getString(R.string.folders_sync),getString(R.string.default_folder),
+                        getString(R.string.gallery)};
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Options");
+                builder.setTitle(getString(R.string.parameters));
                 builder.setItems(colors, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
@@ -168,6 +184,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                                 break;
                             case 1:
                                 syncFolders();
+                                break;
+                            case 2:
+                                defaultFolders();
+                                break;
+                            case 3:
+                                startActivity(new Intent(getApplicationContext(),GalleryActivity.class));
                                 break;
                         }
                     }
@@ -191,16 +213,56 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    private void defaultFolders()
+    {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.parameters));
+
+        FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
+
+        List<Folder> folders = folderDao.loadAll();
+
+        List<String> foldersNames = new ArrayList<>();
+
+        String defaultFolder = new LocalData(this).getString("defaultFolder");
+
+        Integer checkedItem = -1;
+        for(Integer i=0;i<folders.size();i++)
+        {
+            foldersNames.add(folders.get(i).getFolderString());
+            if(defaultFolder!=null && defaultFolder.equals(folders.get(i).getFolderString()))
+            {
+                checkedItem = i;
+            }
+        }
+
+        String[] foldersString = new String[foldersNames.size()];
+        foldersString = foldersNames.toArray(foldersString);
+
+        final String[] finalFoldersString = foldersString;
+        builder.setSingleChoiceItems(foldersString,checkedItem, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which)
+            {
+                dialog.dismiss();
+                new LocalData(HomeActivity.this).setString("defaultFolder", finalFoldersString[which]);
+                loadList();
+            }
+        });
+        builder.show();
+    }
+
     private void syncFolders()
     {
         final ProgressDialog progressDialog = new ProgressDialog(this,R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Sync Folders...");
+        progressDialog.setMessage(getString(R.string.folders_sync));
         progressDialog.show();
 
         User user = SCamera.getInstance().getCurrentUser();
         String token = String.format("Bearer %s", user.getToken());
-        IFolders iFolders = RetrofitClient.getRetrofitInstance(SCamera.getInstance().getServerString()).create(IFolders.class);
+        IFolders iFolders = RetrofitClient.getRetrofitInstance(HomeActivity.this).create(IFolders.class);
         Call<Folder[]> call = iFolders.get(token);
         call.enqueue(new Callback<Folder[]>() {
             @Override
@@ -236,99 +298,16 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private void syncPictures()
     {
         Intent i= new Intent(this, UploadService.class);
-        // potentially add data to the intent
-        //i.putExtra("KEY1", "Value to be used by the service");
         startService(i);
-
-        /*final PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
-        final List<Picture> pictures = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
-        if(pictures.size()>0)
-        {
-            for (Picture picture : pictures)
-            {
-
-                //uploadPicture(pictures.get(0));
-                //uploadPicture(picture);
-            }
-        }*/
-
-        //region comment
-        /*if(pictures.size()>0)
-        {
-            final ProgressDialog progressDialog = new ProgressDialog(this,R.style.AppTheme_Dark_Dialog);
-            progressDialog.setCancelable(false);
-            progressDialog.show();
-
-            String root = Environment.getExternalStorageDirectory().toString();
-            for(final Picture picture : pictures)
-            {
-                IPictures iPictures = RetrofitClient.getRetrofitInstance(new LocalData(getApplicationContext()).getString("serverAddress")).create(IPictures.class);
-                String token = SCamera.getInstance().getCurrentUser().getToken();
-                File file = new File(picture.getFilePath());
-
-                RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
-                MultipartBody.Part body = MultipartBody.Part.createFormData("Picture", file.getName(), reqFile);
-
-                RequestBody code = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getCode());
-                RequestBody description = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getDescription());
-                RequestBody barCode = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getBarCode());
-                String phoneFolder = picture.getFilePath().replace(root,"");
-                RequestBody filePath = RequestBody.create(okhttp3.MultipartBody.FORM, phoneFolder);
-                RequestBody userId = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getUserId().toString());
-                RequestBody folderName = RequestBody.create(okhttp3.MultipartBody.FORM, file.getParentFile().getName());
-
-                Call<ResponseBody> call = iPictures.upload(token,body,code,description,barCode,filePath,userId,folderName);
-                call.enqueue(new Callback<ResponseBody>() {
-                    @Override
-                    public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response)
-                    {
-                        if(response.isSuccessful())
-                        {
-                            Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_LONG).show();
-                            picture.setUploaded(true);
-                            pictureDao.update(picture);
-                        }
-                        else
-                        {
-                            ResponseBody responseBody = response.errorBody();
-                            if(responseBody!=null)
-                            {
-                                try {
-                                    Toast.makeText(getApplicationContext(),responseBody.string(),Toast.LENGTH_LONG).show();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
-                                    Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        }
-                        pictures.remove(picture);
-                        if(pictures.size()==0)
-                            progressDialog.dismiss();
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t)
-                    {
-                        Toast.makeText(getApplicationContext(),"Server not found",Toast.LENGTH_LONG).show();
-                        pictures.remove(picture);
-                        if(pictures.size()==0)
-                            progressDialog.dismiss();
-                    }
-                });
-            }
-        }
-        else
-        {
-            Toast.makeText(getApplicationContext(),"Already synchronized",Toast.LENGTH_LONG).show();
-        }*/
-        //endregion
     }
 
     private void setPending()
     {
         PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
         List<Picture> pictures = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
-        ((FloatingActionButton)findViewById(R.id.logPending)).setImageBitmap(textAsBitmap((pictures.size()+""),1,1));
+        int color = ContextCompat.getColor(getApplicationContext(), R.color.white);
+        ((FloatingActionButton)findViewById(R.id.logPending)).setImageBitmap(textAsBitmap((pictures.size()+""),20,color));
+        //((FloatingActionButton)findViewById(R.id.logPending)).setImageBitmap(textAsBitmap("25",20,color));
     }
 
     public Bitmap textAsBitmap(String text, float textSize, int textColor)

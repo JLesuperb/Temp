@@ -202,7 +202,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                 }
                 else
                 {
-                    IUsers iUsers = RetrofitClient.getRetrofitInstance(SCamera.getInstance().getServerString()).create(IUsers.class);
+                    IUsers iUsers = RetrofitClient.getRetrofitInstance(AuthenticationActivity.this).create(IUsers.class);
                     final User user = new User();
                     user.setUserName(userName);
                     user.setUserPass(userPass);
@@ -266,7 +266,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
             //region Online
             else if(onlineRbn.isChecked())
             {
-                IUsers iUsers = RetrofitClient.getRetrofitInstance(SCamera.getInstance().getServerString()).create(IUsers.class);
+                IUsers iUsers = RetrofitClient.getRetrofitInstance(AuthenticationActivity.this).create(IUsers.class);
 
                 final User user = new User();
                 user.setUserName(userName);

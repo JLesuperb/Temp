@@ -17,6 +17,9 @@
         android:layout_height="wrap_content"
         android:inputType="textUri"
         android:gravity="top"
-        android:hint="@string/enter_comments_optional" />
+        android:hint="@string/enter_comments_optional"
+        android:longClickable="false"
+        android:cursorVisible="false"
+        android:focusableInTouchMode="false"/>
 
 </android.support.v7.widget.LinearLayoutCompat>

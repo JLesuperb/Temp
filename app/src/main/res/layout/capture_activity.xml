@@ -24,6 +24,17 @@
             android:layout_marginBottom="24dp"
             android:layout_gravity="center_horizontal" />
 
+        <!--Capture Picture-->
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/captureBtn"
+            android:drawableLeft="@drawable/baseline_photo_camera_black_24"
+            android:text="@string/capture"
+            android:drawableStart="@drawable/baseline_photo_camera_black_24"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <!--Code Picture-->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"

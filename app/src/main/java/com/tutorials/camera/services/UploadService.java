@@ -70,7 +70,7 @@ public class UploadService extends Service
         }
         else
         {
-            Toast.makeText(getApplicationContext(),"Service updated",Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(),getText(R.string.server_updated),Toast.LENGTH_LONG).show();
         }
 
         //TODO do something useful
@@ -104,10 +104,8 @@ public class UploadService extends Service
 
     private void process(final Picture picture, final NotificationManager mNotifyManager, final Integer i) {
         String root = Environment.getExternalStorageDirectory().toString();
-        IPictures iPictures = RetrofitClient.getRetrofitInstance(SCamera.getInstance().getServerString()).create(IPictures.class);
+        IPictures iPictures = RetrofitClient.getRetrofitInstance(UploadService.this).create(IPictures.class);
         String token = String.format("Bearer %s", SCamera.getInstance().getToken());
-        Toast.makeText(getApplicationContext(),token,Toast.LENGTH_LONG).show();
-        Toast.makeText(getApplicationContext(),token,Toast.LENGTH_LONG).show();
 
         File file = new File(picture.getFilePath());
 
@@ -135,7 +133,7 @@ public class UploadService extends Service
                 if(response.isSuccessful())
                 {
 
-                    Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_SHORT).show();
                     picture.setUploaded(true);
                     PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
                     pictureDao.update(picture);

@@ -3,17 +3,19 @@ package com.tutorials.camera.data;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class LocalData
 {
-    private static final String LocalConfig = "local_config";
+    //private static final String LocalConfig = "local_config";
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
 
     @SuppressLint("CommitPrefEdits")
     public LocalData(Context context)
     {
-        preferences = context.getSharedPreferences(LocalConfig,Context.MODE_PRIVATE);
+        //preferences = context.getSharedPreferences(LocalConfig,Context.MODE_PRIVATE);
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
         editor = preferences.edit();
     }
 

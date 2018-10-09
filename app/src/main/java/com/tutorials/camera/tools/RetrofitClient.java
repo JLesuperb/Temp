@@ -1,5 +1,9 @@
 package com.tutorials.camera.tools;
 
+import android.content.Context;
+
+import com.tutorials.camera.data.LocalData;
+
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
@@ -9,36 +13,37 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitClient
 {
     private static Retrofit retrofit;
-    private static final String BASE_URL = "http://387cfd27.ngrok.io/api/v1/";
 
-    /*public static Retrofit getRetrofitInstance() {
-        if (retrofit == null) {
+    public static Retrofit getRetrofitInstance(Context context)
+    {
+        LocalData localData = new LocalData(context);
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .build();
 
-            retrofit = new retrofit2.Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-        }
+        retrofit = new retrofit2.Retrofit.Builder()
+                .baseUrl(localData.getString("serverAddress"))
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
+                .build();
         return retrofit;
-    }*/
+    }
 
-    public static Retrofit getRetrofitInstance(String serverAddress)
+    static Retrofit getRetrofitInstance()
     {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .readTimeout(60, TimeUnit.SECONDS)
                 .build();
-        if (retrofit == null)
-        {
 
-            retrofit = new retrofit2.Retrofit.Builder()
-                    .baseUrl(serverAddress)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .client(okHttpClient)
-                    //.setClient(new Ok3Client(new OkHttpClient.Builder().readTimeout(60, TimeUnit.SECONDS)))
-                    .build();
-        }
+        retrofit = new retrofit2.Retrofit.Builder()
+                .baseUrl("http://192.168.8.100:1900/api/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
+                .build();
         return retrofit;
     }
 }

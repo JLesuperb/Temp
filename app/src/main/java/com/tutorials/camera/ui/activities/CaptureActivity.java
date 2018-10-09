@@ -58,6 +58,7 @@ public class CaptureActivity extends AppCompatActivity
         findViewById(R.id.saveBtn).setOnClickListener(this);
         findViewById(R.id.cancelBtn).setOnClickListener(this);
         findViewById(R.id.imagePreview).setOnLongClickListener(this);
+        findViewById(R.id.captureBtn).setOnClickListener(this);
 
         dispatchTakePictureIntent();
         TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
@@ -176,6 +177,9 @@ public class CaptureActivity extends AppCompatActivity
             case R.id.cancelBtn:
                 cancelData();
                 break;
+            case R.id.captureBtn:
+                dispatchTakePictureIntent();
+                break;
         }
     }
 
@@ -186,11 +190,13 @@ public class CaptureActivity extends AppCompatActivity
         codeEdt.setError(null);
         TextInputEditText descEdt = findViewById(R.id.descEdt);
         descEdt.setError(null);
-        if(codeEdt.getText()!=null && descEdt.getText()!=null)
+        TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
+        if(codeEdt.getText()!=null && descEdt.getText()!=null && barCodeEdt.getText()!=null)
         {
             String codeText = codeEdt.getText().toString();
             String descText = codeEdt.getText().toString();
-            if(!codeText.trim().isEmpty() && !descText.trim().isEmpty())
+            String barCodeText = codeEdt.getText().toString();
+            if(!codeText.trim().isEmpty() && !descText.trim().isEmpty() || !barCodeText.trim().isEmpty())
             {
                 File path = new File(app.getFolderName());
                 {
@@ -213,7 +219,7 @@ public class CaptureActivity extends AppCompatActivity
                             copyFile(currentFile.getAbsolutePath(),file.getAbsolutePath());
 
 
-                            TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
+
 
                             Picture picture = new Picture();
                             picture.setCode(codeEdt.getText().toString());
@@ -223,8 +229,8 @@ public class CaptureActivity extends AppCompatActivity
                             picture.setFolderId(SCamera.getInstance().getFolder().getFolderId());
                             picture.setFolder(SCamera.getInstance().getFolderName());
 
-                            if(barCodeEdt.getText()!=null)
-                                picture.setBarCode(barCodeEdt.getText().toString());
+
+                            picture.setBarCode(barCodeEdt.getText().toString());
 
                             picture.setUploaded(false);
                             picture.setUserId(app.getCurrentUser().getUserId());
@@ -295,7 +301,7 @@ public class CaptureActivity extends AppCompatActivity
 
     private void cancelData()
     {
-
+        finish();
     }
 
     @Override

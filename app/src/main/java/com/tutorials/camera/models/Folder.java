@@ -45,6 +45,7 @@ public class Folder
         this.folderString = folderString;
     }
 
+
     @Override
     public String toString() {
         return folderString;
