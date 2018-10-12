@@ -19,6 +19,7 @@ public interface IPictures
                               @Part MultipartBody.Part file, @Part("PictureCode") RequestBody code
             , @Part("PictureDesc") RequestBody description, @Part("PictureBarCode") RequestBody barCode
             , @Part("PhonePath") RequestBody filePath, @Part("UserFId") RequestBody userId
-            , @Part("Directory") RequestBody folder,@Part("BranchFId") RequestBody branchId,
-                              @Part("DirectoryFId") RequestBody folderId);
+            , @Part("Directory") RequestBody folder,@Part("BranchFId") RequestBody branchId
+            , @Part("DirectoryFId") RequestBody folderId, @Part("CreatedAt") RequestBody savingTime
+            ,@Part("PictureNumber") RequestBody pictureNumber);
 }

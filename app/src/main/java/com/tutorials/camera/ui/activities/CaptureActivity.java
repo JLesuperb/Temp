@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
+import com.tutorials.camera.data.LocalData;
 import com.tutorials.camera.models.Picture;
 import com.tutorials.camera.models.PictureDao;
 import com.tutorials.camera.models.User;
@@ -28,6 +29,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Date;
 
 import id.zelory.compressor.Compressor;
 
@@ -215,10 +217,35 @@ public class CaptureActivity extends AppCompatActivity
                             fos.flush();
                             fos.close();*/
 
+                            LocalData localData = new LocalData(app.getApplicationContext());
+
+                            Date date = localData.getDate("savingDate");
+                            Integer pNumber = 1;
+                            if(date!=null)
+                            {
+                                if(AppTools.dateCompare(new Date(),date))
+                                {
+                                    pNumber = localData.getInteger("pictureNumber");
+                                    pNumber = pNumber+1;
+                                    localData.setInteger("pictureNumber",pNumber);
+                                }
+                                else
+                                {
+                                    date = new Date();
+                                    localData.setDate("savingDate",date);
+                                    localData.setInteger("pictureNumber",pNumber);
+                                }
+
+                            }
+                            else
+                            {
+                                date = new Date();
+                                localData.setDate("savingDate",date);
+                                localData.setInteger("pictureNumber",pNumber);
+                            }
+
                             File file = new File(path,currentFile.getName());
                             copyFile(currentFile.getAbsolutePath(),file.getAbsolutePath());
-
-
 
 
                             Picture picture = new Picture();
@@ -226,9 +253,11 @@ public class CaptureActivity extends AppCompatActivity
                             picture.setDescription(descEdt.getText().toString());
 
                             picture.setFilePath(file.getAbsolutePath());
-                            picture.setFolderId(SCamera.getInstance().getFolder().getFolderId());
-                            picture.setFolder(SCamera.getInstance().getFolderName());
+                            picture.setFolderId(app.getFolder().getFolderId());
+                            picture.setFolder(app.getFolderName());
 
+                            picture.setSavingTime(AppTools.fromDate(date));
+                            picture.setPictureNumber(pNumber);
 
                             picture.setBarCode(barCodeEdt.getText().toString());
 

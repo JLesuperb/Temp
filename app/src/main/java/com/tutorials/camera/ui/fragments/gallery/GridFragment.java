@@ -1,9 +1,12 @@
 package com.tutorials.camera.ui.fragments.gallery;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -11,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
@@ -68,12 +72,12 @@ public class GridFragment extends _BaseFragment
         super.onViewCreated(view, savedInstanceState);
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
-        GalleryActivity homeActivity = ((GalleryActivity)getActivity());
+        AppCompatActivity homeActivity = ((GalleryActivity)getActivity());
         if(homeActivity!=null)
         {
             homeActivity.setSupportActionBar(toolbar);
 
-            ActionBar actionBar = ((GalleryActivity) getActivity()).getSupportActionBar();
+            ActionBar actionBar = homeActivity.getSupportActionBar();
             if (actionBar != null)
             {
                 actionBar.setDisplayHomeAsUpEnabled(true);
@@ -89,7 +93,8 @@ public class GridFragment extends _BaseFragment
         List<Picture> pictures = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
         PictureAdapter adapter = new PictureAdapter(getActivity());
         adapter.addAll(pictures);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        Toast.makeText(getContext(),pictures.size()+"",Toast.LENGTH_SHORT).show();
+        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
         recyclerView.setAdapter(adapter);
     }
 
@@ -101,7 +106,7 @@ public class GridFragment extends _BaseFragment
         {
             case android.R.id.home:
                 if(getActivity()!=null)
-                    getActivity().getSupportFragmentManager().popBackStack();
+                    getActivity().finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

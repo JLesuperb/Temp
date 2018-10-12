@@ -1,7 +1,7 @@
 package com.tutorials.camera.services;
 
+import android.app.Activity;
 import android.app.NotificationManager;
-import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -22,8 +22,6 @@ import com.tutorials.camera.tools.RetrofitClient;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -36,17 +34,20 @@ import retrofit2.Response;
 public class UploadService extends Service
 {
     public static final String CHANNEL_1_ID = "channel1";
+    public static final String RESULT = "result";
+    public static final String NOTIFICATION = "com.tutorials.camera";
     //public static final String CHANNEL_2_ID = "channel2";
 
-    private NotificationManager mNotifyManager;
-    private Boolean isLasted;
+    private Long lastId = Long.MIN_VALUE;
+    Integer i = 0;
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId)
     {
+        launch();
 
-
-        final PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
-        final List<Picture> pictures = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
+        /*PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
+        List<Picture> pictures = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
 
         if(pictures.size()>0)
         {
@@ -57,7 +58,7 @@ public class UploadService extends Service
                 i++;
             }
 
-            /*Iterator<Picture> iterator = pictures.iterator();
+            *//*Iterator<Picture> iterator = pictures.iterator();
             while (iterator.hasNext())
             {
                 Picture picture = iterator.next();
@@ -66,15 +67,42 @@ public class UploadService extends Service
                 {
                     isLasted = true;
                 }
-            }*/
+            }*//*
         }
         else
         {
             Toast.makeText(getApplicationContext(),getText(R.string.server_updated),Toast.LENGTH_LONG).show();
-        }
+        }*/
 
         //TODO do something useful
         return Service.START_NOT_STICKY;
+    }
+
+    private void launch()
+    {
+
+        i++;
+        PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
+        Picture picture = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).limit(1).unique();
+        if(picture!=null)
+        {
+            if(lastId == Long.MIN_VALUE || !lastId.equals(picture.getId()))
+            {
+                uploadPicture(picture,i);
+                lastId = picture.getId();
+            }
+            else
+            {
+                picture = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false),PictureDao.Properties.Id.notEq(lastId)).limit(1).unique();
+                uploadPicture(picture,i);
+                lastId = picture.getId();
+            }
+        }
+        else
+        {
+            publishResults(0,Activity.RESULT_OK);
+            Toast.makeText(getApplicationContext(),getText(R.string.server_updated),Toast.LENGTH_LONG).show();
+        }
     }
 
     @Nullable
@@ -89,7 +117,7 @@ public class UploadService extends Service
 
         NotificationManager mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this,CHANNEL_1_ID);
-        mBuilder.setContentTitle("SCamera")
+        mBuilder.setContentTitle("Soficom Archive")
                 .setContentText("Upload in progress")
                 .setSmallIcon(R.drawable.round_sync_black_18);
         mBuilder.setAutoCancel(false);
@@ -102,7 +130,8 @@ public class UploadService extends Service
 
     }
 
-    private void process(final Picture picture, final NotificationManager mNotifyManager, final Integer i) {
+    private void process(final Picture picture, final NotificationManager mNotifyManager, final Integer i)
+    {
         String root = Environment.getExternalStorageDirectory().toString();
         IPictures iPictures = RetrofitClient.getRetrofitInstance(UploadService.this).create(IPictures.class);
         String token = String.format("Bearer %s", SCamera.getInstance().getToken());
@@ -123,7 +152,11 @@ public class UploadService extends Service
         RequestBody branchId = RequestBody.create(okhttp3.MultipartBody.FORM, user.getBranchId().toString());
         RequestBody folderId = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getFolderId().toString());
 
-        Call<ResponseBody> call = iPictures.upload(token,body,code,description,barCode,filePath,userId,folderName,branchId,folderId);
+        RequestBody savingTime = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getSavingTime());
+
+        RequestBody pictureNumber = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getPictureNumber().toString());
+
+        Call<ResponseBody> call = iPictures.upload(token,body,code,description,barCode,filePath,userId,folderName,branchId,folderId,savingTime, pictureNumber);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response)
@@ -133,14 +166,16 @@ public class UploadService extends Service
                 if(response.isSuccessful())
                 {
 
-                    Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_SHORT).show();
+                    ///Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_SHORT).show();
                     picture.setUploaded(true);
                     PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
                     pictureDao.update(picture);
+                    publishResults(1,Activity.RESULT_OK);
+                    launch();
                 }
                 else
                 {
-                    ResponseBody responseBody = response.errorBody();
+                    /*ResponseBody responseBody = response.errorBody();
                     if(responseBody!=null)
                     {
                         try {
@@ -149,7 +184,9 @@ public class UploadService extends Service
                             e.printStackTrace();
                             Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
                         }
-                    }
+                    }*/
+                    Toast.makeText(getApplicationContext(),"Server Error",Toast.LENGTH_LONG).show();
+                    publishResults(0,Activity.RESULT_CANCELED);
                 }
             }
 
@@ -158,9 +195,17 @@ public class UploadService extends Service
             {
                 mNotifyManager.cancel(i);
                 //progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(),"Server not found",Toast.LENGTH_LONG).show();
                 Toast.makeText(getApplicationContext(),new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
+                //launch();
+                publishResults(0,Activity.RESULT_CANCELED);
             }
         });
+    }
+
+    private void publishResults(int state,int result) {
+        Intent intent = new Intent(NOTIFICATION);
+        intent.putExtra(RESULT, result);
+        intent.putExtra("state", state);
+        sendBroadcast(intent);
     }
 }

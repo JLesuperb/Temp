@@ -5,6 +5,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class LocalData
 {
     //private static final String LocalConfig = "local_config";
@@ -20,19 +25,19 @@ public class LocalData
     }
 
     public void setString(String key,String value)
+{
+    if(value!=null)
     {
-        if(value!=null)
-        {
-            editor.putString(key,value);
-        }
-        else
-        {
-            editor.remove(key);
-        }
-        editor.apply();
-        editor.commit();
-        editor.apply();
+        editor.putString(key,value);
     }
+    else
+    {
+        editor.remove(key);
+    }
+    editor.apply();
+    editor.commit();
+    editor.apply();
+}
 
     public String getString(String key)
     {
@@ -42,4 +47,57 @@ public class LocalData
             return null;
     }
 
+    public void setInteger(String key,Integer value)
+    {
+        if(value!=null) {
+            editor.putInt(key,value);
+        }
+        else {
+        editor.remove(key);
+        }
+        editor.apply();
+        editor.commit();
+        editor.apply();
+    }
+
+    public Integer getInteger(String key)
+    {
+        if(preferences.contains(key))
+            return preferences.getInt(key,Integer.MIN_VALUE);
+        else
+            return null;
+    }
+
+    public Date getDate(String key)
+    {
+        if(preferences.contains(key))
+        {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            try
+            {
+                return sdf.parse(getString(key));
+            }
+            catch (ParseException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public void setDate(String key,Date value)
+    {
+        if(value!=null)
+        {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            editor.putString(key,sdf.format(value));
+        }
+        else
+        {
+            editor.remove(key);
+        }
+        editor.apply();
+        editor.commit();
+        editor.apply();
+    }
 }

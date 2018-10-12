@@ -10,6 +10,24 @@ import org.greenrobot.greendao.annotation.Generated;
 @Entity(nameInDb = "TPictures")
 public class Picture
 {
+    /*public static Picture copy(Picture other ) {
+        Picture newPicture = new Picture();
+        newPicture.id = other.id;
+        newPicture.code = other.code;
+        newPicture.description = other.description;
+        newPicture.barCode = other.barCode;
+        newPicture.filePath = other.filePath;
+        newPicture.userId = other.userId;
+        newPicture.folder = other.folder;
+        newPicture.uploaded = other.uploaded;
+        newPicture.name = other.name;
+        newPicture.folderId = other.folderId;
+        newPicture.savingTime = other.savingTime;
+        newPicture.pictureNumber = other.pictureNumber;
+        //... etc.
+        return newPicture;
+    }*/
+
     @Id()
     @Property(nameInDb = "PictureId")
     @SerializedName("PictureId")
@@ -50,10 +68,18 @@ public class Picture
     @SerializedName("DirectoryFId")
     private Long folderId;
 
-    @Generated(hash = 2007807456)
+    @Property(nameInDb = "SavingTime")
+    @SerializedName("SavingTime")
+    private String savingTime;
+
+    @Property(nameInDb = "PictureNumber")
+    @SerializedName("PictureNumber")
+    private Integer pictureNumber;
+
+    @Generated(hash = 128438483)
     public Picture(Long id, String code, String description, String barCode,
             String filePath, Long userId, String folder, Boolean uploaded,
-            String name, Long folderId) {
+            String name, Long folderId, String savingTime, Integer pictureNumber) {
         this.id = id;
         this.code = code;
         this.description = description;
@@ -64,6 +90,8 @@ public class Picture
         this.uploaded = uploaded;
         this.name = name;
         this.folderId = folderId;
+        this.savingTime = savingTime;
+        this.pictureNumber = pictureNumber;
     }
 
     @Generated(hash = 1602548376)
@@ -148,5 +176,21 @@ public class Picture
 
     public void setFolderId(Long folderId) {
         this.folderId = folderId;
+    }
+
+    public String getSavingTime() {
+        return this.savingTime;
+    }
+
+    public void setSavingTime(String savingTime) {
+        this.savingTime = savingTime;
+    }
+
+    public Integer getPictureNumber() {
+        return this.pictureNumber;
+    }
+
+    public void setPictureNumber(Integer pictureNumber) {
+        this.pictureNumber = pictureNumber;
     }
 }

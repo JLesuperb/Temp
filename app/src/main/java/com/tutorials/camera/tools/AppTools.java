@@ -20,7 +20,17 @@ import com.tutorials.camera.interfaces.ILink;
 import com.tutorials.camera.models.Link;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 import retrofit2.Call;
@@ -166,5 +176,97 @@ public class AppTools
                 Toast.makeText(activity,new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    /*private static <E> E cloneObject(E item)
+    {
+        try
+        {
+            E clone = item.getClass().newInstance();
+            for (Field field : item.getClass().getDeclaredFields())
+            {
+                field.setAccessible(true);
+                field.set(clone, field.get(item));
+            }
+            return clone;
+        }catch(Exception e){
+            return null;
+        }
+    }*/
+
+    /*public static class Processor
+    {
+        public static <T> T createInstance(){
+            T t = new T();
+            return t;
+        }
+    }*/
+
+    public static String getDate(Long milliSeconds)
+    {
+        // Create a DateFormatter object for displaying date in specified format.
+        @SuppressLint("SimpleDateFormat")
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd" /*"yyyy/MM/dd HH:mm:ss"*/);
+
+        // Create a calendar object that will convert the date and time value in milliseconds to date.
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(milliSeconds);
+        return formatter.format(calendar.getTime());
+    }
+
+    @NonNull
+    public static Boolean dateCompare(Date date1, Date date2)
+    {
+        Calendar cal1 = Calendar.getInstance();
+        Calendar cal2 = Calendar.getInstance();
+        cal1.setTime(date1);
+        cal2.setTime(date2);
+        return cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR) &&
+                cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR);
+    }
+
+    public static Long getTimeMillis(Date date)
+    {
+        return date.getTime();
+    }
+
+    public static void copyFile(String from, String to) throws IOException
+    {
+        File fromFile =new File(from);
+        File toFile =new File(to);
+        InputStream inStream = new FileInputStream(fromFile);
+        OutputStream outStream = new FileOutputStream(toFile);
+        byte[] buffer = new byte[1024];
+
+        int length;
+        //copy the file content in bytes
+        while ((length = inStream.read(buffer)) > 0)
+        {
+            outStream.write(buffer, 0, length);
+        }
+
+        inStream.close();
+        outStream.close();
+        fromFile.delete();
+    }
+
+    public static Date toDate(String date)
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        try
+        {
+            return sdf.parse(date);
+        }
+        catch (ParseException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String fromDate(Date date)
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        return sdf.format(date);
     }
 }

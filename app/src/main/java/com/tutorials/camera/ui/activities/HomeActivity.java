@@ -2,8 +2,11 @@ package com.tutorials.camera.ui.activities;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -42,6 +45,7 @@ import com.tutorials.camera.tools.RetrofitClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -50,6 +54,22 @@ import retrofit2.Response;
 public class HomeActivity extends AppCompatActivity implements View.OnClickListener
 {
     private AppCompatSpinner branchesSpr;
+
+    private BroadcastReceiver receiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            if (bundle != null)
+            {
+                int resultCode = bundle.getInt(UploadService.RESULT);
+                if (resultCode == RESULT_OK)
+                {
+                    setPending();
+                }
+            }
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -118,8 +138,99 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
         }
+
+        /*findViewById(R.id.logPending).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                load200();
+            }
+        });*/
     }
 
+    private void load200()
+    {
+        Toast.makeText(getApplicationContext(),"Launch1",Toast.LENGTH_SHORT).show();
+        FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
+        List<Folder> folderList = folderDao.loadAll();
+        Folder[] folders = folderList.toArray(new Folder[0]);
+
+        PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
+        List<Picture> pictureList = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
+        Picture[] pictures = pictureList.toArray(new Picture[0]);
+
+        List<Picture> list = new ArrayList<>();
+
+        Random rand = new Random();
+
+        Long integer=10L;
+        while (integer<200)
+        {
+            /*for(Picture picture:pictureList)
+            {
+                integer++;
+                Picture pictureCopy = Picture.copy(picture);
+                pictureCopy.setId(integer);
+                list.add(pictureCopy);
+            }*/
+        }
+
+        /*for(Long integer=1L;integer<201;integer++)
+        {
+            int pictureNum = rand.nextInt((2) + 1);
+
+            for(Picture picture:pictureList)
+            {
+                integer++;
+                Picture pictureCopy = Picture.copy(picture);
+                pictureCopy.setId(integer);
+                list.add(pictureCopy);
+            }
+            
+            
+            
+            Picture picture = pictures[pictureNum];
+            picture.setId(Long.parseLong(integer+""));
+            list.add(picture);
+            *//*int folderNum = rand.nextInt((4) + 1);
+            int pictureNum = rand.nextInt((2) + 1);
+
+            File path = new File(SCamera.getInstance().getFolderName(folders[folderNum].getFolderString()));
+
+            if(path.exists() || path.mkdirs())
+            {
+                File file = new File(path,String.format("%s.jpg",AppTools.getUniqueString()));
+                try
+                {
+                    AppTools.copyFile(pictures[pictureNum].getFilePath(),file.getAbsolutePath());
+
+                    Picture picture = new Picture();
+                    picture.setCode(pictures[pictureNum].getCode());
+                    picture.setDescription(pictures[pictureNum].getDescription());
+
+                    picture.setFilePath(file.getAbsolutePath());
+                    picture.setFolderId(folders[folderNum].getFolderId());
+                    picture.setFolder(folders[folderNum].getFolderString());
+
+                    picture.setBarCode(pictures[pictureNum].getBarCode());
+
+                    picture.setUploaded(false);
+                    picture.setUserId(SCamera.getInstance().getCurrentUser().getUserId());
+                    list.add(picture);
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }*//*
+        }*/
+
+        if(list.size()>0)
+        {
+            pictureDao.insertOrReplaceInTx(list);
+        }
+        Toast.makeText(getApplicationContext(),"Launch2",Toast.LENGTH_SHORT).show();
+    }
 
 
     private void loadList()
@@ -154,10 +265,17 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(receiver);
+    }
+
+    @Override
     protected void onResume()
     {
         super.onResume();
         setPending();
+        registerReceiver(receiver, new IntentFilter(UploadService.NOTIFICATION));
     }
 
     @Override
@@ -299,9 +417,30 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     {
         Intent i= new Intent(this, UploadService.class);
         startService(i);
+        //bindService(i, networkServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
-    private void setPending()
+    /*private ServiceConnection networkServiceConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            networkService = new Messenger(service);
+            try {
+                Message msg = Message.obtain(null, NetworkService.MSG_REGISTER_CLIENT);
+                msg.replyTo = messenger;
+                networkService.send(msg);
+                log.debug("Connected to service");
+
+            } catch (RemoteException e) {
+                // Here, the service has crashed even before we were able to connect
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };*/
+
+        private void setPending()
     {
         PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
         List<Picture> pictures = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
