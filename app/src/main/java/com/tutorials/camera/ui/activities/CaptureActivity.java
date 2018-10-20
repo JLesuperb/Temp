@@ -13,6 +13,7 @@ import android.support.v7.widget.AppCompatImageView;
 import android.view.View;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
 import com.tutorials.camera.data.LocalData;
@@ -94,9 +95,13 @@ public class CaptureActivity extends AppCompatActivity
                     tempFile = new File(path,String.format("%s.jpg",AppTools.getUniqueString()));
                     //tempFile = new File(path,"_temp.jpg");
                     Uri imageUri = FileProvider.getUriForFile(this,"com.tutorials.camera",tempFile);
-                    //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                    //startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+
+                    Intent intent = new Intent(this,PhotoActivity.class);
+                    intent.putExtra("picturePath",tempFile.getAbsolutePath());
+                    //startActivityForResult(intent, 4);
 
                     /*new CameraPreviewIntent(this)
                             .setExportDir(CameraPreviewIntent.Directory.DCIM, "ImgLyExample")
@@ -181,8 +186,16 @@ public class CaptureActivity extends AppCompatActivity
         }
         else if(requestCode==EXTERNAL_IMAGE_CAPTURE)
         {
-            String path = data.getStringExtra(CameraPreviewActivity.RESULT_IMAGE_PATH);
-            Toast.makeText(this, "Image Save on: " + path, Toast.LENGTH_LONG).show();
+            if(resultCode == RESULT_OK)
+            {
+                AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
+                Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
+            }
+            else
+            {
+                AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
+                Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
+            }
         }
     }
 
