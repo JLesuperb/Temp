@@ -9,6 +9,6 @@ import retrofit2.http.Headers;
 public interface ILink
 {
     @Headers({"Accept: application/json"})
-    @GET("Links")
+    @GET("links")
     Call<Link> get();
 }

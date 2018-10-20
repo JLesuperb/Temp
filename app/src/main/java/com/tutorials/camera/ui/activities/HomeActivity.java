@@ -1,6 +1,7 @@
 package com.tutorials.camera.ui.activities;
 
 import android.Manifest;
+import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -320,7 +321,15 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.syncBtn:
-                syncPictures();
+                if(!isMyServiceRunning(UploadService.class))
+                {
+                    syncPictures();
+                    Toast.makeText(getApplicationContext(),getText(R.string.upload_running),Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(),getText(R.string.upload_already_running),Toast.LENGTH_SHORT).show();
+                }
                 break;
 
             case R.id.btnLogout:
@@ -329,6 +338,19 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 finish();
                 break;
         }
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        if(manager!=null)
+        {
+            for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+                if (serviceClass.getName().equals(service.service.getClassName())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void defaultFolders()
@@ -440,7 +462,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }
     };*/
 
-        private void setPending()
+    private void setPending()
     {
         PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
         List<Picture> pictures = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
@@ -464,6 +486,13 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         return image;
     }
 
+    private Boolean hasFolders()
+    {
+        FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
+        List<Folder> folders = folderDao.loadAll();
+        return folders.size()>0;
+    }
+
     private void capturePicture()
     {
         if(AppTools.checkPermission(this))
@@ -479,13 +508,14 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 else
                 {
-                    Toast.makeText(this,"Please select your folder", Toast.LENGTH_LONG).show();
+                    int text = (hasFolders()) ? R.string.please_select_folder:R.string.please_sync_folder;
+                    Toast.makeText(this,getString(text), Toast.LENGTH_LONG).show();
                 }
-
             }
             else
             {
-                Toast.makeText(this,"Please select your folder", Toast.LENGTH_LONG).show();
+                int text = (hasFolders()) ? R.string.please_select_folder:R.string.please_sync_folder;
+                Toast.makeText(this,getString(text), Toast.LENGTH_LONG).show();
             }
 
         }

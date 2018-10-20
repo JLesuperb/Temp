@@ -13,7 +13,6 @@ import android.support.v7.widget.AppCompatImageView;
 import android.view.View;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
 import com.tutorials.camera.data.LocalData;
@@ -32,6 +31,7 @@ import java.io.OutputStream;
 import java.util.Date;
 
 import id.zelory.compressor.Compressor;
+import ly.img.android.ui.activities.CameraPreviewActivity;
 
 public class CaptureActivity extends AppCompatActivity
         implements
@@ -39,6 +39,7 @@ public class CaptureActivity extends AppCompatActivity
         View.OnLongClickListener
 {
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int EXTERNAL_IMAGE_CAPTURE = 3;
     static final int REQUEST_BARCODE_CAPTURE = 2;
 
     private File currentFile = null;
@@ -96,12 +97,21 @@ public class CaptureActivity extends AppCompatActivity
                     //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+
+                    /*new CameraPreviewIntent(this)
+                            .setExportDir(CameraPreviewIntent.Directory.DCIM, "ImgLyExample")
+                            .setExportPrefix("example_")
+                            .setEditorIntent(
+                                    new PhotoEditorIntent(this)
+                                            .setExportDir(PhotoEditorIntent.Directory.DCIM, "ImgLyExample")
+                                            .setExportPrefix("result_")
+                                            .destroySourceAfterSave(true)
+                            )
+                            .startActivityForResult(EXTERNAL_IMAGE_CAPTURE);*/
                 }
                 catch (Exception ex)
                 {
                     tempFile = null;
-                    Toast.makeText(getApplicationContext(), ex.getMessage(),Toast.LENGTH_LONG).show();
-                    Toast.makeText(getApplicationContext(), ex.getMessage(),Toast.LENGTH_LONG).show();
                     Toast.makeText(getApplicationContext(), ex.getMessage(),Toast.LENGTH_LONG).show();
                 }
             }
@@ -136,7 +146,10 @@ public class CaptureActivity extends AppCompatActivity
                         //currentFile = new Compressor(this).setDestinationDirectoryPath(path.getAbsolutePath()).compressToFile(tempFile);
                         //currentFile = tempFile;
                         AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
-                        Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
+                        Intent intent = new Intent(CaptureActivity.this,PhotoEditorActivity.class);
+                        intent.putExtra("filePath",currentFile.getAbsolutePath());
+                        startActivityForResult(intent, EXTERNAL_IMAGE_CAPTURE);
+                        //Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
                     }
                     catch (IOException e)
                     {
@@ -165,6 +178,11 @@ public class CaptureActivity extends AppCompatActivity
                     barCodeEdt.setText(text);
                 }
             }
+        }
+        else if(requestCode==EXTERNAL_IMAGE_CAPTURE)
+        {
+            String path = data.getStringExtra(CameraPreviewActivity.RESULT_IMAGE_PATH);
+            Toast.makeText(this, "Image Save on: " + path, Toast.LENGTH_LONG).show();
         }
     }
 

@@ -21,7 +21,6 @@ import com.tutorials.camera.models.User;
 import com.tutorials.camera.tools.RetrofitClient;
 
 import java.io.File;
-import java.io.IOException;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -80,7 +79,6 @@ public class UploadService extends Service
 
     private void launch()
     {
-
         i++;
         PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
         Picture picture = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).limit(1).unique();
@@ -102,6 +100,7 @@ public class UploadService extends Service
         {
             publishResults(0,Activity.RESULT_OK);
             Toast.makeText(getApplicationContext(),getText(R.string.server_updated),Toast.LENGTH_LONG).show();
+            stopSelf();
         }
     }
 
@@ -175,18 +174,9 @@ public class UploadService extends Service
                 }
                 else
                 {
-                    /*ResponseBody responseBody = response.errorBody();
-                    if(responseBody!=null)
-                    {
-                        try {
-                            Toast.makeText(getApplicationContext(),responseBody.string(),Toast.LENGTH_LONG).show();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-                        }
-                    }*/
                     Toast.makeText(getApplicationContext(),"Server Error",Toast.LENGTH_LONG).show();
                     publishResults(0,Activity.RESULT_CANCELED);
+                    stopSelf();
                 }
             }
 
@@ -198,11 +188,13 @@ public class UploadService extends Service
                 Toast.makeText(getApplicationContext(),new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
                 //launch();
                 publishResults(0,Activity.RESULT_CANCELED);
+                stopSelf();
             }
         });
     }
 
-    private void publishResults(int state,int result) {
+    private void publishResults(int state,int result)
+    {
         Intent intent = new Intent(NOTIFICATION);
         intent.putExtra(RESULT, result);
         intent.putExtra("state", state);

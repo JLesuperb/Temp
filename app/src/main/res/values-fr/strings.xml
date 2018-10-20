@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SoficomCamera</string>
+    <string name="app_name">Soficom Archive</string>
     <string name="user_name">Nom d\'utilisateur</string>
     <string name="password">Mot de passe</string>
     <string name="login">Se connecter</string>
@@ -33,4 +33,7 @@
     <string name="server_updated">Le serveur est à jour</string>
     <string name="gallery">Voir les images non envoyées</string>
     <string name="textvv">TextVV</string>
+    <string name="please_sync_folder">Veuillez synchroniser les dossiers s\'il vous plaît</string>
+    <string name="upload_running">Chargement</string>
+    <string name="upload_already_running">Chargement est déjà en cours</string>
 </resources>

@@ -18,6 +18,7 @@ import com.tutorials.camera.SCamera;
 import com.tutorials.camera.data.LocalData;
 import com.tutorials.camera.interfaces.ILink;
 import com.tutorials.camera.models.Link;
+import com.tutorials.camera.ui.activities.AuthenticationActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +34,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -166,6 +168,14 @@ public class AppTools
                         new LocalData(activity).setString("serverAddress",link.getLinkText());
                         Toast.makeText(activity,SCamera.getInstance().getServerString(),Toast.LENGTH_LONG).show();
                     }
+                    else
+                    {
+                        Toast.makeText(activity,"null",Toast.LENGTH_LONG).show();
+                    }
+                }
+                else
+                {
+                   Toast.makeText(activity,"Server not found",Toast.LENGTH_LONG).show();
                 }
             }
 

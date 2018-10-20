@@ -15,18 +15,14 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatRadioButton;
-import android.support.v7.widget.AppCompatSpinner;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
-import com.tutorials.camera.data.LocalData;
 import com.tutorials.camera.data.LocalParams;
-import com.tutorials.camera.interfaces.ILink;
 import com.tutorials.camera.interfaces.IUsers;
-import com.tutorials.camera.models.Link;
 import com.tutorials.camera.models.Token;
 import com.tutorials.camera.models.User;
 import com.tutorials.camera.models.UserDao;
@@ -44,7 +40,8 @@ import retrofit2.Response;
 public class AuthenticationActivity extends AppCompatActivity implements View.OnClickListener
 {
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
         initViews();

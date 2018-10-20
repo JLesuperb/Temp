@@ -15,6 +15,8 @@ import org.jetbrains.annotations.Contract;
 
 import java.io.File;
 
+import ly.img.android.ImgLySdk;
+
 public class SCamera extends Application
 {
     private static SCamera _Instance;
@@ -32,12 +34,16 @@ public class SCamera extends Application
     private String folderName;
 
     @Override
-    public void onCreate() {
+    public void onCreate()
+    {
         super.onCreate();
         mDaoSession = new DaoMaster(new DbHelper(this, "SCamera.db").getWritableDb()).newSession();
         LocalData localData = new LocalData(getApplicationContext());
         if(localData.getString("serverAddress")!=null)
+        {
             serverString = localData.getString("serverAddress");
+        }
+        ImgLySdk.init(this);
         _Instance = this;
     }
 

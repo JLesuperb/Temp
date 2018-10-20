@@ -19,16 +19,17 @@ public class LocalData
     @SuppressLint("CommitPrefEdits")
     public LocalData(Context context)
     {
+
         //preferences = context.getSharedPreferences(LocalConfig,Context.MODE_PRIVATE);
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         editor = preferences.edit();
     }
 
     public void setString(String key,String value)
-{
-    if(value!=null)
     {
-        editor.putString(key,value);
+        if(value!=null)
+        {
+            editor.putString(key,value);
     }
     else
     {
