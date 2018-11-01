@@ -17,12 +17,18 @@
         android:focusableInTouchMode="true">
 
         <android.support.v7.widget.AppCompatImageView
-            android:scaleType="fitXY"
+            android:scaleType="centerCrop"
             android:id="@+id/imagePreview"
             android:layout_width="300dp"
             android:layout_height="300dp"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center_horizontal" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"/>
 
         <!--Capture Picture-->
         <android.support.v7.widget.AppCompatButton
@@ -60,9 +66,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="5"
-                android:lines="5"
+                android:scrollHorizontally="true"
                 android:gravity="top"
-                android:minLines="5"
                 android:scrollbars="vertical"
                 android:inputType="textMultiLine"
                 android:hint="@string/input_your_description" />

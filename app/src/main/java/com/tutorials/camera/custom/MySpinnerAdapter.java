@@ -14,7 +14,8 @@ import java.util.List;
 
 public class MySpinnerAdapter extends ArrayAdapter<Folder>
 {
-    public MySpinnerAdapter(Context context, List<Folder> items) {
+    public MySpinnerAdapter(Context context, List<Folder> items)
+    {
         super(context, android.R.layout.simple_spinner_item, items);
     }
 

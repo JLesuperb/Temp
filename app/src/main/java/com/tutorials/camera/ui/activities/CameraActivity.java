@@ -3,12 +3,10 @@ package com.tutorials.camera.ui.activities;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 
 import com.tutorials.camera.R;
 import com.tutorials.camera.ui.fragments._BaseFragment;
-import com.tutorials.camera.ui.fragments.capture.CaptureFragment;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -25,11 +23,11 @@ public class CameraActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
-        CaptureFragment captureFragment = CaptureFragment.getInstance();
+        /*CaptureFragment captureFragment = CaptureFragment.getInstance();
         captureFragment.setArguments(getIntent().getExtras());
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction()
-                .add(R.id.fragment_container, captureFragment).commit();
+                .add(R.id.fragment_container, captureFragment).commit();*/
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.tutorials.camera.ui.fragments.gallery;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -7,8 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.bumptech.glide.Glide;
+import com.github.chrisbanes.photoview.PhotoView;
 import com.tutorials.camera.R;
+import com.tutorials.camera.models.Picture;
 import com.tutorials.camera.ui.fragments._BaseFragment;
+
+import java.io.File;
 
 public class DetailFragment extends _BaseFragment
 {
@@ -39,7 +45,7 @@ public class DetailFragment extends _BaseFragment
             mCurrentPosition = savedInstanceState.getInt(ARG_POSITION);
         }*/
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_gallery_grid, container, false);
+        return inflater.inflate(R.layout.fragment_gallery_detail, container, false);
     }
 
 
@@ -47,5 +53,17 @@ public class DetailFragment extends _BaseFragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState)
     {
         super.onViewCreated(view, savedInstanceState);
+        if(getArguments()==null)
+            return;
+        Picture picture = (Picture) getArguments().getSerializable("picture");
+        if(picture==null)
+            return;
+
+        PhotoView photoView = view.findViewById(R.id.photoView);
+        Glide
+                .with(getContext())
+                .load(Uri.fromFile(new File(picture.getPicturePath())))
+                .asBitmap()
+                .into(photoView);
     }
 }

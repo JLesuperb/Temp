@@ -3,13 +3,12 @@ package com.tutorials.camera.adapters;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.support.v7.widget.AppCompatImageView;
-import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.tutorials.camera.R;
@@ -24,6 +23,8 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
 {
     private Activity activity;
     private List<Picture> pictures;
+    private OnPictureClickListener onPictureClickListener;
+    private Boolean isSelectable = false;
 
     public PictureAdapter(Activity activity)
     {
@@ -31,15 +32,78 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
         pictures = new ArrayList<>();
     }
 
-    public void addAll(Collection<Picture> pictureCollection)
+    public void add(Collection<Picture> pictureCollection)
     {
         pictures.addAll(pictureCollection);
         notifyDataSetChanged();
     }
 
+    public void setOnPictureClickListener(OnPictureClickListener onPictureClickListener)
+    {
+        this.onPictureClickListener = onPictureClickListener;
+    }
+
+    public void setSelectable(Boolean selectable)
+    {
+        isSelectable = selectable;
+        if(!selectable)
+        {
+            for(Picture picture:pictures)
+            {
+                picture.setChecked(false);
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    public Boolean getSelectable()
+    {
+        return isSelectable;
+    }
+
+    public void checkToggle()
+    {
+        List<Integer> listChecked = new ArrayList<>();
+        List<Integer> listUnChecked = new ArrayList<>();
+        for(Picture picture:pictures)
+        {
+            if(picture.getChecked())
+                listChecked.add(1);
+            else if(!picture.getChecked())
+                listUnChecked.add(1);
+        }
+
+        if(listChecked.size()==pictures.size())
+        {
+            for(Picture picture:pictures)
+            {
+                picture.setChecked(false);
+            }
+            notifyDataSetChanged();
+        }
+
+        else if(listUnChecked.size()==pictures.size())
+        {
+            for(Picture picture:pictures)
+            {
+                picture.setChecked(true);
+            }
+            notifyDataSetChanged();
+        }
+        else
+        {
+            for(Picture picture:pictures)
+            {
+                picture.setChecked(true);
+            }
+            notifyDataSetChanged();
+        }
+    }
+
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i)
+    {
         @SuppressLint("InflateParams")
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_picture,null);
         return new PictureAdapter.ViewHolder(view);
@@ -48,21 +112,26 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i)
     {
-        Picture picture = pictures.get(i);
-        File file = new File(picture.getFilePath());
+        final Picture picture = pictures.get(i);
+        File file = new File(picture.getPicturePath());
+
+        int visibility = (isSelectable)?View.VISIBLE:View.GONE;
+        viewHolder.checkBox.setVisibility(visibility);
+
+        viewHolder.checkBox.setChecked(picture.getChecked());
+
         if(file.exists())
         {
             Glide.with(activity).load(file.getAbsolutePath()).into(viewHolder.itemImage);
-            if(!picture.getBarCode().isEmpty())
-            {
-                viewHolder.productNameTxt.setText(picture.getBarCode());
-            }
-            else
-            {
-                viewHolder.productNameTxt.setText(picture.getName());
-            }
+
+            viewHolder.itemImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(onPictureClickListener!=null)
+                        onPictureClickListener.onPictureClick(picture);
+                }
+            });
         }
-        //Toast.makeText(activity,picture.getFilePath(),Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -72,13 +141,19 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
 
     class ViewHolder extends RecyclerView.ViewHolder
     {
-        AppCompatTextView productNameTxt;
         AppCompatImageView itemImage;
+        AppCompatCheckBox checkBox;
+
         ViewHolder(@NonNull View itemView)
         {
             super(itemView);
-            productNameTxt = itemView.findViewById(R.id.productNameTxt);
             itemImage = itemView.findViewById(R.id.itemImage);
+            checkBox = itemView.findViewById(R.id.checkBox);
         }
+    }
+
+    public interface OnPictureClickListener
+    {
+        void onPictureClick(Picture picture);
     }
 }

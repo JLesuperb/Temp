@@ -1,22 +1,29 @@
 package com.tutorials.camera.ui.activities;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
+import com.tutorials.camera.adapters.BitmapAdapter;
 import com.tutorials.camera.data.LocalData;
+import com.tutorials.camera.models.Invoice;
+import com.tutorials.camera.models.InvoiceDao;
 import com.tutorials.camera.models.Picture;
 import com.tutorials.camera.models.PictureDao;
 import com.tutorials.camera.models.User;
@@ -29,23 +36,26 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import id.zelory.compressor.Compressor;
-import ly.img.android.ui.activities.CameraPreviewActivity;
 
 public class CaptureActivity extends AppCompatActivity
         implements
         View.OnClickListener,
-        View.OnLongClickListener
-{
+        View.OnLongClickListener, BitmapAdapter.ImageViewClickListener, BitmapAdapter.ImageViewLongClickListener {
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_IMAGE_CAPTURE2 = 5;
     static final int EXTERNAL_IMAGE_CAPTURE = 3;
     static final int REQUEST_BARCODE_CAPTURE = 2;
 
     private File currentFile = null;
     private File tempFile = null;
     private Boolean isQuery = false;
+    private BitmapAdapter bitmapAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -63,6 +73,16 @@ public class CaptureActivity extends AppCompatActivity
         findViewById(R.id.cancelBtn).setOnClickListener(this);
         findViewById(R.id.imagePreview).setOnLongClickListener(this);
         findViewById(R.id.captureBtn).setOnClickListener(this);
+
+        bitmapAdapter = new BitmapAdapter();
+        bitmapAdapter.setClickListener(this);
+        bitmapAdapter.setLongClickListener(this);
+
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.addItemDecoration(new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.HORIZONTAL));
+        recyclerView.setLayoutManager(horizontalLayoutManager);
+        recyclerView.setAdapter(bitmapAdapter);
 
         dispatchTakePictureIntent();
         TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
@@ -86,40 +106,25 @@ public class CaptureActivity extends AppCompatActivity
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null)
         {
-            File path = new File(SCamera.getInstance().getFolderName(".tmp"));
+            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE2);
+            /*File path = new File(SCamera.getInstance().getFolderName(".tmp"));
             AppTools.clean(path);
             if(path.exists() || path.mkdirs())
             {
                 try
                 {
                     tempFile = new File(path,String.format("%s.jpg",AppTools.getUniqueString()));
-                    //tempFile = new File(path,"_temp.jpg");
                     Uri imageUri = FileProvider.getUriForFile(this,"com.tutorials.camera",tempFile);
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                    //startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-
-                    Intent intent = new Intent(this,PhotoActivity.class);
-                    intent.putExtra("picturePath",tempFile.getAbsolutePath());
-                    //startActivityForResult(intent, 4);
-
-                    /*new CameraPreviewIntent(this)
-                            .setExportDir(CameraPreviewIntent.Directory.DCIM, "ImgLyExample")
-                            .setExportPrefix("example_")
-                            .setEditorIntent(
-                                    new PhotoEditorIntent(this)
-                                            .setExportDir(PhotoEditorIntent.Directory.DCIM, "ImgLyExample")
-                                            .setExportPrefix("result_")
-                                            .destroySourceAfterSave(true)
-                            )
-                            .startActivityForResult(EXTERNAL_IMAGE_CAPTURE);*/
+                    startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                 }
                 catch (Exception ex)
                 {
                     tempFile = null;
                     Toast.makeText(getApplicationContext(), ex.getMessage(),Toast.LENGTH_LONG).show();
                 }
-            }
+            }*/
         }
     }
 
@@ -148,13 +153,11 @@ public class CaptureActivity extends AppCompatActivity
                                 .setDestinationDirectoryPath(path.getAbsolutePath())
                                 .setCompressFormat(Bitmap.CompressFormat.WEBP)
                                 .compressToFile(tempFile);
-                        //currentFile = new Compressor(this).setDestinationDirectoryPath(path.getAbsolutePath()).compressToFile(tempFile);
-                        //currentFile = tempFile;
                         AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
-                        Intent intent = new Intent(CaptureActivity.this,PhotoEditorActivity.class);
-                        intent.putExtra("filePath",currentFile.getAbsolutePath());
-                        startActivityForResult(intent, EXTERNAL_IMAGE_CAPTURE);
-                        //Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
+                        /*Intent intent = new Intent(CaptureActivity.this,PhotoEditorActivity.class);
+                        intent.putExtra("filePath",tempFile.getAbsolutePath());
+                        startActivityForResult(intent, EXTERNAL_IMAGE_CAPTURE);*/
+                        Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
                     }
                     catch (IOException e)
                     {
@@ -197,6 +200,20 @@ public class CaptureActivity extends AppCompatActivity
                 Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
             }
         }
+        else if(requestCode==REQUEST_IMAGE_CAPTURE2)
+        {
+            if(resultCode == RESULT_OK)
+            {
+                Bundle extras = data.getExtras();
+                if(extras!=null)
+                {
+                    Bitmap imageBitmap = (Bitmap) extras.get("data");
+                    AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
+                    imagePreview.setImageBitmap(imageBitmap);
+                    bitmapAdapter.addBitmap(imageBitmap);
+                }
+            }
+        }
     }
 
     @Override
@@ -224,12 +241,11 @@ public class CaptureActivity extends AppCompatActivity
         TextInputEditText descEdt = findViewById(R.id.descEdt);
         descEdt.setError(null);
         TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
-        if(codeEdt.getText()!=null && descEdt.getText()!=null && barCodeEdt.getText()!=null)
+        if(codeEdt.getText()!=null || barCodeEdt.getText()!=null && bitmapAdapter.getItemCount()>0)
         {
             String codeText = codeEdt.getText().toString();
-            String descText = codeEdt.getText().toString();
             String barCodeText = codeEdt.getText().toString();
-            if(!codeText.trim().isEmpty() && !descText.trim().isEmpty() || !barCodeText.trim().isEmpty())
+            if(!codeText.trim().isEmpty() || !barCodeText.trim().isEmpty())
             {
                 File path = new File(app.getFolderName());
                 {
@@ -238,16 +254,6 @@ public class CaptureActivity extends AppCompatActivity
 
                         if(path.mkdirs() || path.exists())
                         {
-                            //currentFile.renameTo(new File(String.format("%s.jpg",AppTools.getUniqueString())));
-
-                            /*if (currentFile.exists())
-                                currentFile.delete();
-                            currentFile.createNewFile();
-                            FileOutputStream fos = new FileOutputStream(currentFile);
-                            fos.write(fileData);
-                            fos.flush();
-                            fos.close();*/
-
                             LocalData localData = new LocalData(app.getApplicationContext());
 
                             Date date = localData.getDate("savingDate");
@@ -275,38 +281,51 @@ public class CaptureActivity extends AppCompatActivity
                                 localData.setInteger("pictureNumber",pNumber);
                             }
 
-                            File file = new File(path,currentFile.getName());
-                            copyFile(currentFile.getAbsolutePath(),file.getAbsolutePath());
+                            Invoice invoice = new Invoice();
+                            invoice.setInvoiceCode(codeEdt.getText().toString());
+                            if(descEdt.getText()!=null)
+                            invoice.setInvoiceDesc(descEdt.getText().toString());
 
+                            invoice.setInvoiceBarCode(barCodeEdt.getText().toString());
 
-                            Picture picture = new Picture();
-                            picture.setCode(codeEdt.getText().toString());
-                            picture.setDescription(descEdt.getText().toString());
+                            invoice.setBranchId(app.getCurrentUser().getBranchId());
 
-                            picture.setFilePath(file.getAbsolutePath());
-                            picture.setFolderId(app.getFolder().getFolderId());
-                            picture.setFolder(app.getFolderName());
+                            User user = app.getCurrentUser();
 
-                            picture.setSavingTime(AppTools.fromDate(date));
-                            picture.setPictureNumber(pNumber);
+                            invoice.setUserId(user.getUserId());
+                            invoice.setFolderId(app.getFolder().getFolderId());
+                            invoice.setSavingDate(AppTools.getCurrentDate());
+                            invoice.setUploaded(false);
 
-                            picture.setBarCode(barCodeEdt.getText().toString());
+                            InvoiceDao invoiceDao = app.getDaoSession().getInvoiceDao();
+                            invoiceDao.insert(invoice);
 
-                            picture.setUploaded(false);
-                            picture.setUserId(app.getCurrentUser().getUserId());
+                            @SuppressLint("SimpleDateFormat")
+                            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 
-                            PictureDao pictureDao = app.getDaoSession().getPictureDao();
-                            pictureDao.insert(picture);
+                            List<Bitmap> bitmaps = bitmapAdapter.getBitmapList();
+                            for(int i=0;i<bitmaps.size();i++)
+                            {
+                                String reportDate = df.format(date);
+                                String fileName = String.format("%s-%s-%s-%s.jpg",reportDate,pNumber,i+1,user.getUserName());
+                                File file = new File(path, fileName);
+                                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                                Bitmap bitmap = bitmaps.get(i);
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 30, fileOutputStream);
+                                Picture picture = new Picture();
+                                picture.setInvoiceId(invoice.getInvoiceId());
+                                picture.setInvoice(invoice);
+                                picture.setPictureName(fileName);
+                                picture.setPicturePath(file.getAbsolutePath());
+                                PictureDao pictureDao = app.getDaoSession().getPictureDao();
+                                pictureDao.insert(picture);
+                            }
 
                             Toast.makeText(getApplicationContext(),"Saved",Toast.LENGTH_LONG).show();
                             finish();
                         }
                     }
                     catch (FileNotFoundException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    catch (IOException e)
                     {
                         e.printStackTrace();
                     }
@@ -318,10 +337,6 @@ public class CaptureActivity extends AppCompatActivity
                 {
                     codeEdt.setError("Please insert the code");
                 }
-                if(descText.trim().isEmpty())
-                {
-                    descEdt.setError("Please insert the description");
-                }
             }
         }
         else
@@ -329,10 +344,6 @@ public class CaptureActivity extends AppCompatActivity
             if(codeEdt.getText()==null)
             {
                 codeEdt.setError("Please insert the code");
-            }
-            if(descEdt.getText()==null)
-            {
-                descEdt.setError("Please insert the description");
             }
         }
 
@@ -374,5 +385,35 @@ public class CaptureActivity extends AppCompatActivity
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public void viewClicked(Bitmap bitmap)
+    {
+        AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
+        imagePreview.setImageBitmap(bitmap);
+    }
+
+    @Override
+    public void viewLongClicked(final Bitmap bitmap)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Confirmation");
+        builder.setMessage("Will you delete the selected picture?");
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        });
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                bitmapAdapter.removeBitmap(bitmap);
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 }

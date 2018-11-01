@@ -41,7 +41,8 @@ public class RetrofitClient
 
         retrofit = new retrofit2.Retrofit.Builder()
                 .baseUrl("http://173.212.228.130:8080/api/v1/")
-                //.baseUrl("http://38d3a68c.ngrok.io/api/")
+                //.baseUrl("http://173.212.228.130:8081/api/v1/")
+                //.baseUrl("http://bad6ec00.ngrok.io/api/v1/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(okHttpClient)
                 .build();

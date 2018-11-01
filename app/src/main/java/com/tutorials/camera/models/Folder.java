@@ -6,10 +6,15 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Transient;
+
+import java.io.Serializable;
 
 @Entity(nameInDb = "TFolders")
-public class Folder
+public class Folder implements Serializable
 {
+    public static final long serialVersionUID = 1947132626L;
+
     @Id()
     @Property(nameInDb = "FolderId")
     @SerializedName("DirectoryId")
@@ -18,6 +23,9 @@ public class Folder
     @Property(nameInDb = "FolderName")
     @SerializedName("DirectoryName")
     private String folderString;
+
+    @Transient
+    private Boolean isChecked = false;
 
     @Generated(hash = 937473288)
     public Folder(Long folderId, String folderString) {
@@ -49,5 +57,21 @@ public class Folder
     @Override
     public String toString() {
         return folderString;
+    }
+
+    public Boolean getChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(Boolean checked) {
+        isChecked = checked;
+    }
+
+    public Boolean getIsChecked() {
+        return this.isChecked;
+    }
+
+    public void setIsChecked(Boolean isChecked) {
+        this.isChecked = isChecked;
     }
 }

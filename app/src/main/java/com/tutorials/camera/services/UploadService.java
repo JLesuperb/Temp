@@ -14,13 +14,17 @@ import android.widget.Toast;
 
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
+import com.tutorials.camera.interfaces.IInvoices;
 import com.tutorials.camera.interfaces.IPictures;
+import com.tutorials.camera.models.Invoice;
+import com.tutorials.camera.models.InvoiceDao;
 import com.tutorials.camera.models.Picture;
 import com.tutorials.camera.models.PictureDao;
-import com.tutorials.camera.models.User;
 import com.tutorials.camera.tools.RetrofitClient;
 
 import java.io.File;
+import java.util.Iterator;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -45,22 +49,22 @@ public class UploadService extends Service
     {
         launch();
 
-        /*PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
-        List<Picture> pictures = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
+        /*InvoiceDao invoiceDao = SCamera.getInstance().getDaoSession().getInvoiceDao();
+        List<Invoice> invoices = invoiceDao.queryBuilder().where(InvoiceDao.Properties.Uploaded.eq(false)).list();
 
-        if(pictures.size()>0)
+        if(invoices.size()>0)
         {
             Integer i = 0;
-            for (Picture picture : pictures)
+            for (Invoice invoice : invoices)
             {
-                uploadPicture(picture,i);
+                uploadPicture(invoice,i);
                 i++;
             }
 
-            *//*Iterator<Picture> iterator = pictures.iterator();
+           *//* Iterator<Invoice> iterator = invoices.iterator();
             while (iterator.hasNext())
             {
-                Picture picture = iterator.next();
+                Invoice invoice = iterator.next();
                 //Do stuff
                 if (!iterator.hasNext())
                 {
@@ -80,20 +84,20 @@ public class UploadService extends Service
     private void launch()
     {
         i++;
-        PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
-        Picture picture = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).limit(1).unique();
-        if(picture!=null)
+        InvoiceDao invoiceDao = SCamera.getInstance().getDaoSession().getInvoiceDao();
+        Invoice invoice = invoiceDao.queryBuilder().where(InvoiceDao.Properties.Uploaded.eq(false)).limit(1).unique();
+        if(invoice!=null)
         {
-            if(lastId == Long.MIN_VALUE || !lastId.equals(picture.getId()))
+            if(lastId == Long.MIN_VALUE || !lastId.equals(invoice.getInvoiceId()))
             {
-                uploadPicture(picture,i);
-                lastId = picture.getId();
+                uploadPicture(invoice,i);
+                lastId = invoice.getInvoiceId();
             }
             else
             {
-                picture = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false),PictureDao.Properties.Id.notEq(lastId)).limit(1).unique();
-                uploadPicture(picture,i);
-                lastId = picture.getId();
+                invoice = invoiceDao.queryBuilder().where(InvoiceDao.Properties.Uploaded.eq(false),InvoiceDao.Properties.InvoiceId.notEq(lastId)).limit(1).unique();
+                uploadPicture(invoice,i);
+                lastId = invoice.getInvoiceId();
             }
         }
         else
@@ -111,7 +115,7 @@ public class UploadService extends Service
         return null;
     }
 
-    private void uploadPicture(final Picture picture, Integer i)
+    private void uploadPicture(final Invoice invoice, Integer i)
     {
 
         NotificationManager mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -124,20 +128,87 @@ public class UploadService extends Service
         if(mNotifyManager!=null)
         {
             mNotifyManager.notify(i, mBuilder.build());
-            process(picture,mNotifyManager,i);
+            process(invoice,mNotifyManager,i);
         }
 
     }
 
-    private void process(final Picture picture, final NotificationManager mNotifyManager, final Integer i)
+    private void process(final Invoice invoice, final NotificationManager mNotifyManager, final Integer i)
     {
         String root = Environment.getExternalStorageDirectory().toString();
-        IPictures iPictures = RetrofitClient.getRetrofitInstance(UploadService.this).create(IPictures.class);
+
+        MultipartBody.Builder builder = new MultipartBody.Builder();
+        builder.setType(MultipartBody.FORM);
+
         String token = String.format("Bearer %s", SCamera.getInstance().getToken());
 
-        File file = new File(picture.getFilePath());
+        builder.addFormDataPart("InvoiceCode",invoice.getInvoiceCode());
+        builder.addFormDataPart("InvoiceDesc",invoice.getInvoiceDesc());
+        builder.addFormDataPart("InvoiceBarCode",invoice.getInvoiceBarCode());
+        builder.addFormDataPart("UserFId",invoice.getUserId().toString());
+        builder.addFormDataPart("BranchFId",invoice.getBranchId().toString());
+        builder.addFormDataPart("DirectoryFId",invoice.getFolderId().toString());
 
-        RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
+        PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
+        List<Picture> pictures = pictureDao.queryBuilder()
+            .where(PictureDao.Properties.InvoiceId.eq(invoice.getInvoiceId())).list();
+
+        for (int j = 0; j < pictures.size(); j++)
+        {
+            Picture picture = pictures.get(j);
+            File file = new File(picture.getPicturePath());
+            builder.addFormDataPart("Pictures[]", picture.getPictureName(), RequestBody.create(MediaType.parse("multipart/form-data"), file));
+            builder.addFormDataPart("PhonePaths[]", picture.getPicturePath().replace(root,""));
+        }
+
+        MultipartBody requestBody = builder.build();
+
+        IInvoices iInvoices = RetrofitClient.getRetrofitInstance(UploadService.this).create(IInvoices.class);
+
+        Call<ResponseBody> call = iInvoices.upload(token,requestBody);
+
+        call.enqueue(new Callback<ResponseBody>()
+        {
+            @Override
+            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response)
+            {
+                mNotifyManager.cancel(i);
+                if(response.isSuccessful())
+                {
+                    invoice.setUploaded(true);
+                    InvoiceDao invoiceDao = SCamera.getInstance().getDaoSession().getInvoiceDao();
+                    invoiceDao.update(invoice);
+                    publishResults(1,Activity.RESULT_OK);
+                    launch();
+                }
+                else
+                {
+                    Toast.makeText(getApplicationContext(),"Server Error",Toast.LENGTH_LONG).show();
+                    publishResults(0,Activity.RESULT_CANCELED);
+                    stopSelf();
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t)
+            {
+                mNotifyManager.cancel(i);
+                //progressDialog.dismiss();
+                Toast.makeText(getApplicationContext(),new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
+                //launch();
+                publishResults(0,Activity.RESULT_CANCELED);
+                stopSelf();
+            }
+        });
+
+
+        //region Comment
+        /*IPictures iPictures = RetrofitClient.getRetrofitInstance(UploadService.this).create(IPictures.class);
+
+
+        File file = new File(picture.getFilePath());*/
+
+        /*RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("Picture", file.getName(), reqFile);
 
         RequestBody code = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getCode());
@@ -190,7 +261,8 @@ public class UploadService extends Service
                 publishResults(0,Activity.RESULT_CANCELED);
                 stopSelf();
             }
-        });
+        });*/
+        //endregion
     }
 
     private void publishResults(int state,int result)

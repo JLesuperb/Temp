@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <me.dm7.barcodescanner.zxing.ZXingScannerView
+        android:id="@+id/scannerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </me.dm7.barcodescanner.zxing.ZXingScannerView>
+
+    <android.support.v7.widget.AppCompatImageView
+        android:background="#e32"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_margin="16dp"
+        android:id="@+id/flashButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp" />
+
+</android.support.constraint.ConstraintLayout>

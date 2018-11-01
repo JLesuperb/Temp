@@ -4,21 +4,25 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 import com.google.zxing.Result;
+import com.tutorials.camera.R;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
-public class ZXingActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler
-{
+public class ZXingActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler, View.OnClickListener {
     private ZXingScannerView mScannerView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        mScannerView = new ZXingScannerView(this);
-        setContentView(mScannerView);
+        //mScannerView = new ZXingScannerView(this);
+        //setContentView(mScannerView);
+        setContentView(R.layout.activity_zxing);
+        mScannerView = findViewById(R.id.scannerView);
+        findViewById(R.id.flashButton).setOnClickListener(this);
     }
 
     @Override
@@ -53,5 +57,16 @@ public class ZXingActivity extends AppCompatActivity implements ZXingScannerView
         setResult(RESULT_CANCELED,intent);
         finish();
         //super.onBackPressed();
+    }
+
+    @Override
+    public void onClick(View view)
+    {
+        switch (view.getId())
+        {
+            case R.id.flashButton:
+                mScannerView.setFlash(!mScannerView.getFlash());
+                break;
+        }
     }
 }

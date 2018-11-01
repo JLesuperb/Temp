@@ -35,9 +35,9 @@ import com.tutorials.camera.interfaces.IFolders;
 import com.tutorials.camera.interfaces.IUsers;
 import com.tutorials.camera.models.Folder;
 import com.tutorials.camera.models.FolderDao;
+import com.tutorials.camera.models.Invoice;
+import com.tutorials.camera.models.InvoiceDao;
 import com.tutorials.camera.models.Mode;
-import com.tutorials.camera.models.Picture;
-import com.tutorials.camera.models.PictureDao;
 import com.tutorials.camera.models.User;
 import com.tutorials.camera.models.UserDao;
 import com.tutorials.camera.services.UploadService;
@@ -46,7 +46,6 @@ import com.tutorials.camera.tools.RetrofitClient;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -139,100 +138,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 }
             });
         }
-
-        /*findViewById(R.id.logPending).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view)
-            {
-                load200();
-            }
-        });*/
     }
-
-    private void load200()
-    {
-        Toast.makeText(getApplicationContext(),"Launch1",Toast.LENGTH_SHORT).show();
-        FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
-        List<Folder> folderList = folderDao.loadAll();
-        Folder[] folders = folderList.toArray(new Folder[0]);
-
-        PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
-        List<Picture> pictureList = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
-        Picture[] pictures = pictureList.toArray(new Picture[0]);
-
-        List<Picture> list = new ArrayList<>();
-
-        Random rand = new Random();
-
-        Long integer=10L;
-        while (integer<200)
-        {
-            /*for(Picture picture:pictureList)
-            {
-                integer++;
-                Picture pictureCopy = Picture.copy(picture);
-                pictureCopy.setId(integer);
-                list.add(pictureCopy);
-            }*/
-        }
-
-        /*for(Long integer=1L;integer<201;integer++)
-        {
-            int pictureNum = rand.nextInt((2) + 1);
-
-            for(Picture picture:pictureList)
-            {
-                integer++;
-                Picture pictureCopy = Picture.copy(picture);
-                pictureCopy.setId(integer);
-                list.add(pictureCopy);
-            }
-            
-            
-            
-            Picture picture = pictures[pictureNum];
-            picture.setId(Long.parseLong(integer+""));
-            list.add(picture);
-            *//*int folderNum = rand.nextInt((4) + 1);
-            int pictureNum = rand.nextInt((2) + 1);
-
-            File path = new File(SCamera.getInstance().getFolderName(folders[folderNum].getFolderString()));
-
-            if(path.exists() || path.mkdirs())
-            {
-                File file = new File(path,String.format("%s.jpg",AppTools.getUniqueString()));
-                try
-                {
-                    AppTools.copyFile(pictures[pictureNum].getFilePath(),file.getAbsolutePath());
-
-                    Picture picture = new Picture();
-                    picture.setCode(pictures[pictureNum].getCode());
-                    picture.setDescription(pictures[pictureNum].getDescription());
-
-                    picture.setFilePath(file.getAbsolutePath());
-                    picture.setFolderId(folders[folderNum].getFolderId());
-                    picture.setFolder(folders[folderNum].getFolderString());
-
-                    picture.setBarCode(pictures[pictureNum].getBarCode());
-
-                    picture.setUploaded(false);
-                    picture.setUserId(SCamera.getInstance().getCurrentUser().getUserId());
-                    list.add(picture);
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }*//*
-        }*/
-
-        if(list.size()>0)
-        {
-            pictureDao.insertOrReplaceInTx(list);
-        }
-        Toast.makeText(getApplicationContext(),"Launch2",Toast.LENGTH_SHORT).show();
-    }
-
 
     private void loadList()
     {
@@ -340,7 +246,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
+    private boolean isMyServiceRunning(Class<?> serviceClass)
+    {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         if(manager!=null)
         {
@@ -464,11 +371,10 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setPending()
     {
-        PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
-        List<Picture> pictures = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
+        InvoiceDao invoiceDao = SCamera.getInstance().getDaoSession().getInvoiceDao();
+        List<Invoice> invoices = invoiceDao.queryBuilder().where(InvoiceDao.Properties.Uploaded.eq(false)).list();
         int color = ContextCompat.getColor(getApplicationContext(), R.color.white);
-        ((FloatingActionButton)findViewById(R.id.logPending)).setImageBitmap(textAsBitmap((pictures.size()+""),20,color));
-        //((FloatingActionButton)findViewById(R.id.logPending)).setImageBitmap(textAsBitmap("25",20,color));
+        ((FloatingActionButton)findViewById(R.id.logPending)).setImageBitmap(textAsBitmap((invoices.size()+""),20,color));
     }
 
     public Bitmap textAsBitmap(String text, float textSize, int textColor)

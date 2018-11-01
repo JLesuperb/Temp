@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Field;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -285,6 +286,14 @@ public class AppTools
         return sdf.format(date);
     }
 
+
+    public static String getCurrentDate()
+    {
+        @SuppressLint("SimpleDateFormat")
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+        Date today = Calendar.getInstance().getTime();
+        return df.format(today);
+    }
 
     /** Create a File for saving an image or video */
     public static File getOutputMediaFile(int type){

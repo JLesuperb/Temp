@@ -6,92 +6,55 @@ import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Property;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.ToOne;
+import org.greenrobot.greendao.DaoException;
+import org.greenrobot.greendao.annotation.Transient;
+
+import java.io.Serializable;
 
 @Entity(nameInDb = "TPictures")
-public class Picture
+public class Picture implements Serializable
 {
-    /*public static Picture copy(Picture other ) {
-        Picture newPicture = new Picture();
-        newPicture.id = other.id;
-        newPicture.code = other.code;
-        newPicture.description = other.description;
-        newPicture.barCode = other.barCode;
-        newPicture.filePath = other.filePath;
-        newPicture.userId = other.userId;
-        newPicture.folder = other.folder;
-        newPicture.uploaded = other.uploaded;
-        newPicture.name = other.name;
-        newPicture.folderId = other.folderId;
-        newPicture.savingTime = other.savingTime;
-        newPicture.pictureNumber = other.pictureNumber;
-        //... etc.
-        return newPicture;
-    }*/
+    public static final long serialVersionUID = 2040040024L;
 
     @Id()
     @Property(nameInDb = "PictureId")
     @SerializedName("PictureId")
     private Long id;
 
-    @Property(nameInDb = "PictureCode")
-    @SerializedName("PictureCode")
-    private String code;
-
-    @Property(nameInDb = "PictureDesc")
-    @SerializedName("PictureDesc")
-    private String description;
-
-    @Property(nameInDb = "BarCode")
-    @SerializedName("PictureBarCode")
-    private String barCode;
-
     @Property(nameInDb = "PicturePath")
-    @SerializedName("PhonePath")
-    private String filePath;
+    @SerializedName("PicturePath")
+    private String picturePath;
 
-    @Property(nameInDb = "UserFId")
-    @SerializedName("UserFId")
-    private Long userId;
-
-    @Property(nameInDb = "Folder")
-    @SerializedName("Directory")
-    private String folder;
-
-    @Property(nameInDb = "Uploaded")
-    private Boolean uploaded;
+    @ToOne(joinProperty = "invoiceId")
+    private Invoice invoice;
 
     @Property(nameInDb = "PictureName")
     @SerializedName("PictureName")
-    private String name;
+    private String pictureName;
 
-    @Property(nameInDb = "DirectoryId")
-    @SerializedName("DirectoryFId")
-    private Long folderId;
+    @Property(nameInDb = "InvoiceFId")
+    @SerializedName("InvoiceFId")
+    private Long invoiceId;
 
-    @Property(nameInDb = "SavingTime")
-    @SerializedName("SavingTime")
-    private String savingTime;
+    @Transient
+    private Boolean isChecked = false;
 
-    @Property(nameInDb = "PictureNumber")
-    @SerializedName("PictureNumber")
-    private Integer pictureNumber;
+    /** Used to resolve relations */
+    @Generated(hash = 2040040024)
+    private transient DaoSession daoSession;
 
-    @Generated(hash = 128438483)
-    public Picture(Long id, String code, String description, String barCode,
-            String filePath, Long userId, String folder, Boolean uploaded,
-            String name, Long folderId, String savingTime, Integer pictureNumber) {
+    /** Used for active entity operations. */
+    @Generated(hash = 220989104)
+    private transient PictureDao myDao;
+
+    @Generated(hash = 402704253)
+    public Picture(Long id, String picturePath, String pictureName,
+            Long invoiceId) {
         this.id = id;
-        this.code = code;
-        this.description = description;
-        this.barCode = barCode;
-        this.filePath = filePath;
-        this.userId = userId;
-        this.folder = folder;
-        this.uploaded = uploaded;
-        this.name = name;
-        this.folderId = folderId;
-        this.savingTime = savingTime;
-        this.pictureNumber = pictureNumber;
+        this.picturePath = picturePath;
+        this.pictureName = pictureName;
+        this.invoiceId = invoiceId;
     }
 
     @Generated(hash = 1602548376)
@@ -106,91 +69,110 @@ public class Picture
         this.id = id;
     }
 
-    public String getCode() {
-        return this.code;
+    public String getPicturePath() {
+        return this.picturePath;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setPicturePath(String picturePath) {
+        this.picturePath = picturePath;
     }
 
-    public String getDescription() {
-        return this.description;
+    public String getPictureName() {
+        return this.pictureName;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setPictureName(String pictureName) {
+        this.pictureName = pictureName;
     }
 
-    public String getBarCode() {
-        return this.barCode;
+    public Long getInvoiceId() {
+        return this.invoiceId;
     }
 
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
+    public void setInvoiceId(Long invoiceId) {
+        this.invoiceId = invoiceId;
     }
 
-    public String getFilePath() {
-        return this.filePath;
+    @Generated(hash = 694408149)
+    private transient Long invoice__resolvedKey;
+
+    /** To-one relationship, resolved on first access. */
+    @Generated(hash = 710097085)
+    public Invoice getInvoice() {
+        Long __key = this.invoiceId;
+        if (invoice__resolvedKey == null || !invoice__resolvedKey.equals(__key)) {
+            final DaoSession daoSession = this.daoSession;
+            if (daoSession == null) {
+                throw new DaoException("Entity is detached from DAO context");
+            }
+            InvoiceDao targetDao = daoSession.getInvoiceDao();
+            Invoice invoiceNew = targetDao.load(__key);
+            synchronized (this) {
+                invoice = invoiceNew;
+                invoice__resolvedKey = __key;
+            }
+        }
+        return invoice;
     }
 
-    public void setFilePath(String filePath) {
-        this.filePath = filePath;
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 2131282099)
+    public void setInvoice(Invoice invoice) {
+        synchronized (this) {
+            this.invoice = invoice;
+            invoiceId = invoice == null ? null : invoice.getInvoiceId();
+            invoice__resolvedKey = invoiceId;
+        }
     }
 
-    public Long getUserId() {
-        return this.userId;
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#delete(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 128553479)
+    public void delete() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.delete(this);
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#refresh(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 1942392019)
+    public void refresh() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.refresh(this);
     }
 
-    public String getFolder() {
-        return this.folder;
+    /**
+     * Convenient call for {@link org.greenrobot.greendao.AbstractDao#update(Object)}.
+     * Entity must attached to an entity context.
+     */
+    @Generated(hash = 713229351)
+    public void update() {
+        if (myDao == null) {
+            throw new DaoException("Entity is detached from DAO context");
+        }
+        myDao.update(this);
     }
 
-    public void setFolder(String folder) {
-        this.folder = folder;
+    public Boolean getChecked() {
+        return isChecked;
     }
 
-    public Boolean getUploaded() {
-        return this.uploaded;
+    public void setChecked(Boolean checked) {
+        isChecked = checked;
     }
 
-    public void setUploaded(Boolean uploaded) {
-        this.uploaded = uploaded;
-    }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Long getFolderId() {
-        return this.folderId;
-    }
-
-    public void setFolderId(Long folderId) {
-        this.folderId = folderId;
-    }
-
-    public String getSavingTime() {
-        return this.savingTime;
-    }
-
-    public void setSavingTime(String savingTime) {
-        this.savingTime = savingTime;
-    }
-
-    public Integer getPictureNumber() {
-        return this.pictureNumber;
-    }
-
-    public void setPictureNumber(Integer pictureNumber) {
-        this.pictureNumber = pictureNumber;
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 1412175658)
+    public void __setDaoSession(DaoSession daoSession) {
+        this.daoSession = daoSession;
+        myDao = daoSession != null ? daoSession.getPictureDao() : null;
     }
 }

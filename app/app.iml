@@ -202,6 +202,7 @@
     <orderEntry type="library" name="Gradle: com.android.support:support-compat-28.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:animated-vector-drawable-28.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:appcompat-v7-28.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.github.chrisbanes:PhotoView-2.0.0" level="project" />
     <orderEntry type="library" name="Gradle: com.android.support:support-v13-27.1.1" level="project" />
     <orderEntry type="library" name="Gradle: __local_aars__:C.\Users\JLesuperb\AndroidSdk\build-tools\28.0.2\renderscript\lib\renderscript-v8.jar:unspecified@jar" level="project" />
   </component>

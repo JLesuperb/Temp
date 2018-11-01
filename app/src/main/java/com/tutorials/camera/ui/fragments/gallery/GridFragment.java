@@ -1,30 +1,19 @@
 package com.tutorials.camera.ui.fragments.gallery;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.tutorials.camera.R;
-import com.tutorials.camera.SCamera;
-import com.tutorials.camera.adapters.PictureAdapter;
-import com.tutorials.camera.models.Picture;
-import com.tutorials.camera.models.PictureDao;
 import com.tutorials.camera.ui.activities.GalleryActivity;
 import com.tutorials.camera.ui.fragments._BaseFragment;
-
-import java.util.List;
 
 public class GridFragment extends _BaseFragment
 {
@@ -88,14 +77,14 @@ public class GridFragment extends _BaseFragment
             }
         }
 
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
+        /*RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
         List<Picture> pictures = pictureDao.queryBuilder().where(PictureDao.Properties.Uploaded.eq(false)).list();
         PictureAdapter adapter = new PictureAdapter(getActivity());
         adapter.addAll(pictures);
         Toast.makeText(getContext(),pictures.size()+"",Toast.LENGTH_SHORT).show();
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);*/
     }
 
 

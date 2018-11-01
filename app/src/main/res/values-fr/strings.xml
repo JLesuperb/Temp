@@ -36,4 +36,6 @@
     <string name="please_sync_folder">Veuillez synchroniser les dossiers s\'il vous plaît</string>
     <string name="upload_running">Chargement</string>
     <string name="upload_already_running">Chargement est déjà en cours</string>
+    <string name="label_brush">Brosse</string>
+    <string name="label_text">Texte</string>
 </resources>
