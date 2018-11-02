@@ -108,7 +108,6 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.ViewHolder
             {
                 Glide.with(itemView.getContext())
                         .load(Uri.fromFile(new File(picture.getPicturePath())))
-                        .asBitmap()
                         .into(viewHolder.folderIV);
             }
         }

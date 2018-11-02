@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/server_config"
+            android:title="@string/server_config" />
+        <item
+            android:id="@+id/folders_sync"
+            android:title="@string/folders_sync" />
+        <item
+            android:id="@+id/default_folder"
+            android:title="@string/default_folder" />
+        <!--<item
+            android:id="@+id/gallery"
+            android:title="@string/gallery" />-->
+    </group>
+</menu>

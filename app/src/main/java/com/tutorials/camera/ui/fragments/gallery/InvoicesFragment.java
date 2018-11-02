@@ -102,7 +102,7 @@ public class InvoicesFragment extends _BaseFragment implements InvoiceAdapter.On
         recyclerView.addItemDecoration(new CardDecoration(5));
         InvoiceDao invoiceDao = SCamera.getInstance().getDaoSession().getInvoiceDao();
         List<Invoice> invoices = invoiceDao.queryBuilder().where(InvoiceDao.Properties.SavingDate.eq(savingDate)).list();
-        adapter = new InvoiceAdapter(getActivity());
+        adapter = new InvoiceAdapter();
         adapter.add(invoices);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
         recyclerView.setAdapter(adapter);

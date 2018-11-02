@@ -15,8 +15,6 @@ import org.jetbrains.annotations.Contract;
 
 import java.io.File;
 
-import ly.img.android.ImgLySdk;
-
 public class SCamera extends Application
 {
     private static SCamera _Instance;
@@ -43,7 +41,6 @@ public class SCamera extends Application
         {
             serverString = localData.getString("serverAddress");
         }
-        ImgLySdk.init(this);
         _Instance = this;
     }
 

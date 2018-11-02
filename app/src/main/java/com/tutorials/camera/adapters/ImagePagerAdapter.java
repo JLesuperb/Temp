@@ -50,7 +50,6 @@ public class ImagePagerAdapter extends PagerAdapter
         Glide
                 .with(container.getContext())
                 .load(Uri.fromFile(new File(picture.getPicturePath())))
-                .asBitmap()
                 .thumbnail(0.2f)
                 .into(photoView);
 

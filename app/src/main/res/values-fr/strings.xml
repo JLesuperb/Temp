@@ -38,4 +38,10 @@
     <string name="upload_already_running">Chargement est déjà en cours</string>
     <string name="label_brush">Brosse</string>
     <string name="label_text">Texte</string>
+    <!--DrawerLayoutHome-->
+    <string name="navigation_drawer_open">Ouvrir la bare de navigation</string>
+    <string name="navigation_drawer_close">Fermer la bare de navigation</string>
+    <!--/DrawerLayoutHome-->
+    <string name="delete">Effacer</string>
+    <string name="check_or_uncheck_all">Cocher ou décocher tout</string>
 </resources>

@@ -1,8 +1,9 @@
 package com.tutorials.camera.adapters;
 
-import android.app.Activity;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.AppCompatCheckBox;
+import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatTextView;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -11,9 +12,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 
+import com.bumptech.glide.Glide;
 import com.tutorials.camera.R;
+import com.tutorials.camera.SCamera;
 import com.tutorials.camera.models.Invoice;
+import com.tutorials.camera.models.InvoiceDao;
+import com.tutorials.camera.models.Picture;
+import com.tutorials.camera.models.PictureDao;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +32,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
     private OnInvoiceCheckListener onInvoiceCheckListener;
     private Boolean isSelectable = false;
 
-    public InvoiceAdapter(Activity activity)
+    public InvoiceAdapter()
     {
         invoices = new ArrayList<>();
     }
@@ -49,6 +56,15 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
     public void setOnInvoiceCheckListener(OnInvoiceCheckListener onInvoiceCheckListener)
     {
         this.onInvoiceCheckListener = onInvoiceCheckListener;
+    }
+
+    public void update()
+    {
+        InvoiceDao invoiceDao = SCamera.getInstance().getDaoSession().getInvoiceDao();
+        List<Invoice> invoiceList = invoiceDao.queryBuilder().where(InvoiceDao.Properties.Uploaded.eq(false)).orderDesc(InvoiceDao.Properties.InvoiceId).list();
+        invoices.clear();
+        invoices.addAll(invoiceList);
+        notifyDataSetChanged();
     }
 
     public void setSelectable(Boolean selectable)
@@ -119,11 +135,26 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i)
     {
+        View itemView = viewHolder.itemView;
+
         final Invoice invoice = invoices.get(i);
         if(invoice.getInvoiceCode()!=null && !invoice.getInvoiceCode().trim().isEmpty())
             viewHolder.invoiceNameTV.setText(invoice.getInvoiceCode());
         else if(invoice.getInvoiceBarCode()!=null && !invoice.getInvoiceBarCode().trim().isEmpty())
             viewHolder.invoiceNameTV.setText(invoice.getInvoiceBarCode());
+
+        PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
+
+        Picture picture = pictureDao.queryBuilder()
+                .where(PictureDao.Properties.InvoiceId.eq(invoice.getInvoiceId()))
+                .orderDesc(PictureDao.Properties.Id).limit(1).unique();
+
+        if(picture!=null)
+        {
+            Glide.with(itemView.getContext())
+                    .load(Uri.fromFile(new File(picture.getPicturePath())))
+                    .into(viewHolder.invoiceIV);
+        }
 
         int visibility = (isSelectable)?View.VISIBLE:View.GONE;
         viewHolder.checkBox.setVisibility(visibility);
@@ -198,6 +229,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
         CardView cardView;
         AppCompatTextView invoiceNameTV;
         AppCompatCheckBox checkBox;
+        AppCompatImageView invoiceIV;
 
         ViewHolder(@NonNull View itemView)
         {
@@ -205,6 +237,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
             cardView = itemView.findViewById(R.id.cardView);
             invoiceNameTV = itemView.findViewById(R.id.invoiceNameTV);
             checkBox = itemView.findViewById(R.id.checkBox);
+            invoiceIV = itemView.findViewById(R.id.invoiceIV);
         }
     }
 

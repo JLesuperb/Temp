@@ -12,6 +12,7 @@
         android:layout_height="match_parent">
 
         <android.support.v7.widget.AppCompatImageView
+            android:id="@+id/invoiceIV"
             android:src="@drawable/hugh"
             android:scaleType="centerCrop"
             android:layout_width="match_parent"

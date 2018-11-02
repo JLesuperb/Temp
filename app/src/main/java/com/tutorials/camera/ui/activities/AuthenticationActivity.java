@@ -188,7 +188,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                         SCamera.getInstance().setToken(dbUser.getToken());
                         SCamera.getInstance().setCurrentUser(dbUser);
                         Toast.makeText(getApplicationContext(),"Connected",Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
+                        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                         startActivity(intent);
                         finish();
                     }
@@ -223,7 +223,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                                     UserDao userDao = SCamera.getInstance().getDaoSession().getUserDao();
                                     userDao.insertOrReplace(user);
                                     Toast.makeText(getApplicationContext(),"Connected",Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
+                                    Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                                     startActivity(intent);
                                     finish();
                                 }
@@ -287,7 +287,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                                 SCamera.getInstance().setToken(token.getTokenString());
                                 SCamera.getInstance().setCurrentUser(user);
                                 Toast.makeText(getApplicationContext(),"Connected",Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
+                                Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                                 startActivity(intent);
                                 finish();
                             }

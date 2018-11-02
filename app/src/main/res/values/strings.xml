@@ -37,6 +37,10 @@
     <string name="upload_already_running">In progress</string>
     <string name="label_brush">Brush</string>
     <string name="label_text">Text</string>
+    <!--DrawerLayoutHome-->
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <!--/DrawerLayoutHome-->
     <string name="delete">Delete</string>
     <string name="check_or_uncheck_all">Check or UnCheck all</string>
 </resources>

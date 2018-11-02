@@ -73,6 +73,13 @@
                 android:hint="@string/input_your_description" />
         </android.support.design.widget.TextInputLayout>
 
+        <android.support.v7.widget.AppCompatSpinner
+            android:id="@+id/foldersSpinner"
+            android:spinnerMode="dialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.AppCompat.Spinner.Underlined"/>
+
         <!--Description BarCode-->
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"

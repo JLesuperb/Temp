@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +22,10 @@ import com.bumptech.glide.Glide;
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
 import com.tutorials.camera.adapters.BitmapAdapter;
+import com.tutorials.camera.custom.MySpinnerAdapter;
 import com.tutorials.camera.data.LocalData;
+import com.tutorials.camera.models.Folder;
+import com.tutorials.camera.models.FolderDao;
 import com.tutorials.camera.models.Invoice;
 import com.tutorials.camera.models.InvoiceDao;
 import com.tutorials.camera.models.Picture;
@@ -38,6 +42,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,7 +51,8 @@ import id.zelory.compressor.Compressor;
 public class CaptureActivity extends AppCompatActivity
         implements
         View.OnClickListener,
-        View.OnLongClickListener, BitmapAdapter.ImageViewClickListener, BitmapAdapter.ImageViewLongClickListener {
+        View.OnLongClickListener, BitmapAdapter.ImageViewClickListener, BitmapAdapter.ImageViewLongClickListener
+{
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_IMAGE_CAPTURE2 = 5;
     static final int EXTERNAL_IMAGE_CAPTURE = 3;
@@ -84,6 +90,8 @@ public class CaptureActivity extends AppCompatActivity
         recyclerView.setLayoutManager(horizontalLayoutManager);
         recyclerView.setAdapter(bitmapAdapter);
 
+        loadList();
+
         dispatchTakePictureIntent();
         TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
         barCodeEdt.setOnFocusChangeListener(new View.OnFocusChangeListener()
@@ -99,6 +107,40 @@ public class CaptureActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+
+    private void loadList()
+    {
+        AppCompatSpinner foldersSpinner = findViewById(R.id.foldersSpinner);
+
+        List<Folder> list = new ArrayList<>();
+
+        FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
+        List<Folder> folders = folderDao.loadAll();
+        String defaultFolder = new LocalData(this).getString("defaultFolder");
+        Integer selected = Integer.MIN_VALUE;
+        if(folders.size()>0)
+        {
+            list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_folder)));
+            //list.addAll(folders);
+            for(int i=0;i<folders.size();i++)
+            {
+                list.add(folders.get(i));
+                if(defaultFolder!=null && defaultFolder.equals(folders.get(i).getFolderString()))
+                {
+                    selected = i;
+                }
+            }
+        }
+
+        MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this,list);
+        foldersSpinner.setAdapter(mySpinnerAdapter);
+
+        if(selected!=Integer.MIN_VALUE)
+        {
+            foldersSpinner.setSelection((selected+1));
+        }
     }
 
     private void dispatchTakePictureIntent()
@@ -311,7 +353,7 @@ public class CaptureActivity extends AppCompatActivity
                                 File file = new File(path, fileName);
                                 FileOutputStream fileOutputStream = new FileOutputStream(file);
                                 Bitmap bitmap = bitmaps.get(i);
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 30, fileOutputStream);
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
                                 Picture picture = new Picture();
                                 picture.setInvoiceId(invoice.getInvoiceId());
                                 picture.setInvoice(invoice);

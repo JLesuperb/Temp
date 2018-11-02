@@ -63,7 +63,6 @@ public class DetailFragment extends _BaseFragment
         Glide
                 .with(getContext())
                 .load(Uri.fromFile(new File(picture.getPicturePath())))
-                .asBitmap()
                 .into(photoView);
     }
 }
