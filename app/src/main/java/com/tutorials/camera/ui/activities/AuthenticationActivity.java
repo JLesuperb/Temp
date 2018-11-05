@@ -1,36 +1,34 @@
 package com.tutorials.camera.ui.activities;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatRadioButton;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
-import com.tutorials.camera.data.LocalParams;
 import com.tutorials.camera.interfaces.IUsers;
 import com.tutorials.camera.models.Token;
 import com.tutorials.camera.models.User;
 import com.tutorials.camera.models.UserDao;
 import com.tutorials.camera.tools.AppTools;
-import com.tutorials.camera.tools.Permissions;
 import com.tutorials.camera.tools.RetrofitClient;
 
 import java.io.IOException;
+import java.util.List;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -45,51 +43,33 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_authentication);
         initViews();
-        //launch();
-
     }
 
-    private void launch()
+    private void initViews()
     {
-        if (Permissions.checkCameraPermission(getApplicationContext()))
-        {
-            if (Permissions.checkReadingExternalPermission(getApplicationContext())) {
-                if (Permissions.checkWritingExternalPermission(getApplicationContext())) {
-                    initViews();
-                } else {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        ActivityCompat.requestPermissions(this,
-                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, LocalParams.WRITE_EXTERNAL_STORAGE);
-                    } else {
-                        finish();
-                    }
-
-                }
-            } else {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, LocalParams.READ_EXTERNAL_QUERY);
-                } else {
-                    finish();
-                }
-            }
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.CAMERA}, LocalParams.CAMERA);
-            } else {
-                finish();
-            }
-        }
-    }
-
-    private void initViews() {
         findViewById(R.id.btn_login).setOnClickListener(this);
         findViewById(R.id.cleanTxt).setOnClickListener(this);
 
         FloatingActionButton configBtn = findViewById(R.id.configBtn);
         configBtn.setOnClickListener(this);
 
+        TextInputEditText userPassEdt = findViewById(R.id.userPassEdt);
+        userPassEdt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+            {
+                if (actionId == EditorInfo.IME_ACTION_DONE)
+                {
+                    findViewById(R.id.btn_login).performClick();
+                }
+                return false;
+            }
+        });
+
+        UserDao userDao = SCamera.getInstance().getDaoSession().getUserDao();
+        List<User> list = userDao.loadAll();
+        if(list.size()>0)
+            findViewById(R.id.cleanTxt).setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -332,53 +312,6 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                 }
             }
             //endregion
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults)
-    {
-        switch (requestCode)
-        {
-            case LocalParams.CAMERA:
-            {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    Toast.makeText(this, "Camera permission granted", Toast.LENGTH_SHORT).show();
-                    launch();
-                }
-                else
-                {
-                    Toast.makeText(this, "Camera permission denied", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            }
-            case LocalParams.READ_EXTERNAL_QUERY:
-            {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    Toast.makeText(this, "Reading storage permission granted", Toast.LENGTH_SHORT).show();
-                    launch();
-                }
-                else
-                {
-                    Toast.makeText(this, "Reading storage permission denied", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            }
-            case LocalParams.WRITE_EXTERNAL_STORAGE:
-            {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-                {
-                    Toast.makeText(this, "Writing storage permission granted", Toast.LENGTH_SHORT).show();
-                    launch();
-                }
-                else
-                {
-                    Toast.makeText(this, "Writing storage permission denied", Toast.LENGTH_SHORT).show();
-                    finish();
-                }
-            }
         }
     }
 

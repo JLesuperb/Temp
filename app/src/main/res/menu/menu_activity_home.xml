@@ -10,6 +10,9 @@
         <item
             android:id="@+id/default_folder"
             android:title="@string/default_folder" />
+        <item
+            android:id="@+id/logout"
+            android:title="@string/logout" />
         <!--<item
             android:id="@+id/gallery"
             android:title="@string/gallery" />-->

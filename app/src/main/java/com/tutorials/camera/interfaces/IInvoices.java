@@ -11,7 +11,7 @@ import retrofit2.http.POST;
 public interface IInvoices
 {
     @Headers({"Accept: application/json"})
-    @POST("pictures")
+    @POST("invoices")
     Call<ResponseBody> upload(@Header("Authorization") String authorization,
                               @Body RequestBody file);
 }

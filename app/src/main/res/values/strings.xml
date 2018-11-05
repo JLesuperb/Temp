@@ -43,4 +43,7 @@
     <!--/DrawerLayoutHome-->
     <string name="delete">Delete</string>
     <string name="check_or_uncheck_all">Check or UnCheck all</string>
+    <string name="zero">0</string>
+    <string name="logout">Log out</string>
+    <string name="empty">Empty</string>
 </resources>

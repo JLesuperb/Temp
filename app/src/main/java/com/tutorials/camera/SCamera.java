@@ -8,12 +8,14 @@ import com.tutorials.camera.helpers.DbHelper;
 import com.tutorials.camera.models.DaoMaster;
 import com.tutorials.camera.models.DaoSession;
 import com.tutorials.camera.models.Folder;
+import com.tutorials.camera.models.Invoice;
 import com.tutorials.camera.models.Mode;
 import com.tutorials.camera.models.User;
 
 import org.jetbrains.annotations.Contract;
 
 import java.io.File;
+import java.util.List;
 
 public class SCamera extends Application
 {
@@ -23,6 +25,7 @@ public class SCamera extends Application
     private String token;
     private String serverString;
     private Folder folder;
+    private List<Invoice> syncInvoices;
 
     @Contract(pure = true)
     public static SCamera getInstance() { return _Instance; }
@@ -114,5 +117,15 @@ public class SCamera extends Application
 
     public Folder getFolder() {
         return folder;
+    }
+
+    public void setSyncInvoices(List<Invoice> syncInvoices)
+    {
+        this.syncInvoices = syncInvoices;
+    }
+
+    public List<Invoice> getSyncInvoices()
+    {
+        return syncInvoices;
     }
 }

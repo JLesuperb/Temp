@@ -13,7 +13,7 @@
     </me.dm7.barcodescanner.zxing.ZXingScannerView>
 
     <android.support.v7.widget.AppCompatImageView
-        android:background="#e32"
+        android:src="@drawable/ic_outline_flash_on_white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_margin="16dp"

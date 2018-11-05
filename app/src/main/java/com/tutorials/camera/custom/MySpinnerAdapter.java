@@ -31,6 +31,7 @@ public class MySpinnerAdapter extends ArrayAdapter<Folder>
     {
         View view = super.getDropDownView(position, convertView, parent);
         TextView tv = (TextView) view;
+        tv.setPadding(10, 5, 10, 5);
         if(position == 0)
             // Set the hint text color gray
             tv.setTextColor(Color.GRAY);

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatImageView;
 import android.view.View;
 
 import com.google.zxing.Result;
@@ -65,7 +66,10 @@ public class ZXingActivity extends AppCompatActivity implements ZXingScannerView
         switch (view.getId())
         {
             case R.id.flashButton:
-                mScannerView.setFlash(!mScannerView.getFlash());
+                Boolean status = mScannerView.getFlash();
+                mScannerView.setFlash(!status);
+                int flash = (status)?R.drawable.ic_outline_flash_on_white:R.drawable.ic_outline_flash_off_white;
+                ((AppCompatImageView)view).setImageResource(flash);
                 break;
         }
     }

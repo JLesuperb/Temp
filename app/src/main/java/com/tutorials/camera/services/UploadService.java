@@ -15,7 +15,6 @@ import android.widget.Toast;
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
 import com.tutorials.camera.interfaces.IInvoices;
-import com.tutorials.camera.interfaces.IPictures;
 import com.tutorials.camera.models.Invoice;
 import com.tutorials.camera.models.InvoiceDao;
 import com.tutorials.camera.models.Picture;
@@ -23,7 +22,6 @@ import com.tutorials.camera.models.PictureDao;
 import com.tutorials.camera.tools.RetrofitClient;
 
 import java.io.File;
-import java.util.Iterator;
 import java.util.List;
 
 import okhttp3.MediaType;
@@ -42,6 +40,7 @@ public class UploadService extends Service
     //public static final String CHANNEL_2_ID = "channel2";
 
     private Long lastId = Long.MIN_VALUE;
+    private Invoice lastInvoice;
     Integer i = 0;
 
     @Override
@@ -85,19 +84,25 @@ public class UploadService extends Service
     {
         i++;
         InvoiceDao invoiceDao = SCamera.getInstance().getDaoSession().getInvoiceDao();
-        Invoice invoice = invoiceDao.queryBuilder().where(InvoiceDao.Properties.Uploaded.eq(false)).limit(1).unique();
-        if(invoice!=null)
+        List<Invoice> invoices = SCamera.getInstance().getSyncInvoices();
+        if(invoices!=null && invoices.size()>0)
         {
-            if(lastId == Long.MIN_VALUE || !lastId.equals(invoice.getInvoiceId()))
+            Invoice invoice = invoices.get(0);
+            if(invoice!=null)
             {
-                uploadPicture(invoice,i);
-                lastId = invoice.getInvoiceId();
-            }
-            else
-            {
-                invoice = invoiceDao.queryBuilder().where(InvoiceDao.Properties.Uploaded.eq(false),InvoiceDao.Properties.InvoiceId.notEq(lastId)).limit(1).unique();
-                uploadPicture(invoice,i);
-                lastId = invoice.getInvoiceId();
+                if(lastId == Long.MIN_VALUE || !lastId.equals(invoice.getInvoiceId()))
+                {
+                    uploadPicture(invoice,i);
+                    lastId = invoice.getInvoiceId();
+                    lastInvoice = invoice;
+                }
+                else
+                {
+                    invoice = invoiceDao.queryBuilder().where(InvoiceDao.Properties.Uploaded.eq(false),InvoiceDao.Properties.InvoiceId.notEq(lastId)).limit(1).unique();
+                    uploadPicture(invoice,i);
+                    lastId = invoice.getInvoiceId();
+                    lastInvoice = invoice;
+                }
             }
         }
         else
@@ -178,6 +183,8 @@ public class UploadService extends Service
                     invoice.setUploaded(true);
                     InvoiceDao invoiceDao = SCamera.getInstance().getDaoSession().getInvoiceDao();
                     invoiceDao.update(invoice);
+                    List<Invoice> list = SCamera.getInstance().getSyncInvoices();
+                    list.remove(invoice);
                     publishResults(1,Activity.RESULT_OK);
                     launch();
                 }

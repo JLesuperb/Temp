@@ -124,6 +124,17 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
         return isSelectable;
     }
 
+    public List<Invoice> getSelected()
+    {
+        List<Invoice> list = new ArrayList<>();
+        for(Invoice invoice:invoices)
+        {
+            if(invoice.getChecked())
+                list.add(invoice);
+        }
+        return list;
+    }
+
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i)
@@ -167,11 +178,14 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
             public void onCheckedChanged(CompoundButton compoundButton, boolean b)
             {
                 invoice.setChecked(b);
+                if(onInvoiceCheckListener !=null)
+                    onInvoiceCheckListener.onInvoiceChecked(invoice);
             }
         });
 
 
-        viewHolder.invoiceIV.setOnClickListener(new View.OnClickListener() {
+        viewHolder.invoiceIV.setOnClickListener(new View.OnClickListener()
+        {
             @Override
             public void onClick(View view)
             {
@@ -185,21 +199,20 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
                     Boolean value = !invoice.getChecked();
                     invoice.setChecked(value);
                     viewHolder.checkBox.setChecked(value);
-                    if(onInvoiceCheckListener !=null)
-                        onInvoiceCheckListener.onInvoiceChecked(invoice);
                 }
             }
         });
 
-        viewHolder.invoiceIV.setOnLongClickListener(new View.OnLongClickListener() {
+        viewHolder.invoiceIV.setOnLongClickListener(new View.OnLongClickListener()
+        {
             @Override
             public boolean onLongClick(View view)
             {
                 if(!isSelectable)
                 {
-                    Boolean value = !invoice.getChecked();
-                    invoice.setChecked(value);
-                    viewHolder.checkBox.setChecked(value);
+                    //Boolean value = !invoice.getChecked();
+                    invoice.setChecked(true);
+                    viewHolder.checkBox.setChecked(true);
                     if(onInvoiceLongClickListener!=null)
                         onInvoiceLongClickListener.onInvoiceLongClicked(invoice);
                     return true;
@@ -222,6 +235,10 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
     @Override
     public int getItemCount() {
         return invoices.size();
+    }
+
+    public List<Invoice> getInvoices() {
+        return invoices;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder

@@ -44,4 +44,7 @@
     <!--/DrawerLayoutHome-->
     <string name="delete">Effacer</string>
     <string name="check_or_uncheck_all">Cocher ou décocher tout</string>
+    <string name="zero">0</string>
+    <string name="logout">Deconnexion</string>
+    <string name="empty">Vide</string>
 </resources>

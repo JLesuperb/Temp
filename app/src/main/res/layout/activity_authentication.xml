@@ -135,6 +135,7 @@
                 android:text="@string/login"/>
 
             <android.support.v7.widget.AppCompatTextView
+                android:visibility="gone"
                 android:clickable="true"
                 android:id="@+id/cleanTxt"
                 android:layout_width="fill_parent"

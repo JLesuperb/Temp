@@ -13,7 +13,7 @@ import java.io.Serializable;
 @Entity(nameInDb = "TFolders")
 public class Folder implements Serializable
 {
-    public static final long serialVersionUID = 1947132626L;
+    public static final long serialVersionUID = 194716L;
 
     @Id()
     @Property(nameInDb = "FolderId")
