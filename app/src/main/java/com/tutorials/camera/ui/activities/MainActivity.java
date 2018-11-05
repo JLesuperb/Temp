@@ -1,13 +1,19 @@
 package com.tutorials.camera.ui.activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -18,6 +24,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
@@ -30,6 +37,7 @@ import com.tutorials.camera.decorations.CardDecoration;
 import com.tutorials.camera.interfaces.IFolders;
 import com.tutorials.camera.models.Folder;
 import com.tutorials.camera.models.FolderDao;
+import com.tutorials.camera.models.Invoice;
 import com.tutorials.camera.models.User;
 import com.tutorials.camera.tools.AppTools;
 import com.tutorials.camera.tools.RetrofitClient;
@@ -44,7 +52,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements
-        NavigationView.OnNavigationItemSelectedListener, View.OnClickListener
+        NavigationView.OnNavigationItemSelectedListener,
+        View.OnClickListener,
+        InvoiceAdapter.OnInvoiceClickListener,
+        InvoiceAdapter.OnInvoiceLongClickListener,
+        InvoiceAdapter.OnInvoiceCheckListener
 {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -98,15 +110,17 @@ public class MainActivity extends AppCompatActivity implements
         recyclerView.setLayoutManager(new GridLayoutManager(this,2));
         recyclerView.setAdapter(adapter);
         findViewById(R.id.captureBtn).setOnClickListener(this);
-        //.setOnInvoiceClickListener(this);
-        //adapter.setOnInvoiceLongClickListener(this);
-        //.setOnInvoiceCheckListener(this);
+        adapter.setOnInvoiceClickListener(this);
+        adapter.setOnInvoiceLongClickListener(this);
+        adapter.setOnInvoiceCheckListener(this);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        return super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     @Override
@@ -146,10 +160,11 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case R.id.folders_sync:
+                syncFolders();
                 new Handler().postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        syncFolders();
+
                     }
                 },500);
                 break;
@@ -184,15 +199,15 @@ public class MainActivity extends AppCompatActivity implements
         User user = SCamera.getInstance().getCurrentUser();
         String token = String.format("Bearer %s", user.getToken());
         IFolders iFolders = RetrofitClient.getRetrofitInstance(MainActivity.this).create(IFolders.class);
-        Call<Folder[]> call = iFolders.get(token);
-        call.enqueue(new Callback<Folder[]>() {
+        Call<List<Folder>> call = iFolders.get(token);
+        call.enqueue(new Callback<List<Folder>>() {
             @Override
-            public void onResponse(@NonNull Call<Folder[]> call, @NonNull Response<Folder[]> response)
+            public void onResponse(@NonNull Call<List<Folder>> call, @NonNull Response<List<Folder>> response)
             {
                 progressDialog.dismiss();
                 if(response.isSuccessful())
                 {
-                    Folder[] folders = response.body();
+                    List<Folder> folders = response.body();
                     if(folders!=null)
                     {
                         FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
@@ -207,7 +222,7 @@ public class MainActivity extends AppCompatActivity implements
             }
 
             @Override
-            public void onFailure(@NonNull Call<Folder[]> call, @NonNull Throwable t)
+            public void onFailure(@NonNull Call<List<Folder>> call, @NonNull Throwable t)
             {
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(),"Connection Not found",Toast.LENGTH_LONG).show();
@@ -263,6 +278,26 @@ public class MainActivity extends AppCompatActivity implements
         return folders.size()>0;
     }
 
+    private void setUpToolbar(Boolean visibility)
+    {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.getMenu().findItem(R.id.action_delete).setVisible(visibility);
+        toolbar.getMenu().findItem(R.id.action_sync).setVisible(visibility);
+        toolbar.getMenu().findItem(R.id.action_check_uncheck).setVisible(visibility);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if(adapter.getSelectable())
+        {
+            adapter.setSelectable(false);
+            setUpToolbar(false);
+            return;
+        }
+        super.onBackPressed();
+    }
+
     @Override
     public void onClick(View view)
     {
@@ -279,5 +314,42 @@ public class MainActivity extends AppCompatActivity implements
                 }
                 break;
         }
+    }
+
+    @Override
+    public void onInvoiceClicked(Invoice invoice)
+    {
+        Intent intent = new Intent(this,GalleryActivity.class);
+        intent.putExtra("invoice",invoice);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onInvoiceLongClicked(Invoice invoice)
+    {
+        Vibrator vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+        if(vibrator!=null)
+        {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            {
+                vibrator.vibrate(VibrationEffect.createOneShot(200, VibrationEffect.DEFAULT_AMPLITUDE));
+            }
+            else
+            {
+                //deprecated in API 26
+                vibrator.vibrate(200);
+            }
+        }
+        adapter.setSelectable(true);
+        setUpToolbar(true);
+    }
+
+    @Override
+    public void onInvoiceChecked(Invoice invoice)
+    {
+        Drawable drawable = (adapter.isCheckAll())? ContextCompat.getDrawable(this,R.drawable.ic_check_box_outline_white):ContextCompat.getDrawable(this,R.drawable.ic_check_box_white);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        MenuItem menuItem = toolbar.getMenu().findItem(R.id.action_check_uncheck);
+        menuItem.setIcon(drawable);
     }
 }

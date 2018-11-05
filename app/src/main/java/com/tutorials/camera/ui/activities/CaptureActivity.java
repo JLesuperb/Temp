@@ -5,17 +5,21 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputEditText;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -32,10 +36,10 @@ import com.tutorials.camera.models.Picture;
 import com.tutorials.camera.models.PictureDao;
 import com.tutorials.camera.models.User;
 import com.tutorials.camera.tools.AppTools;
+import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +64,7 @@ public class CaptureActivity extends AppCompatActivity
 
     private File currentFile = null;
     private File tempFile = null;
+    private File newFile = null;
     private Boolean isQuery = false;
     private BitmapAdapter bitmapAdapter;
 
@@ -148,16 +153,16 @@ public class CaptureActivity extends AppCompatActivity
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null)
         {
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE2);
-            /*File path = new File(SCamera.getInstance().getFolderName(".tmp"));
-            AppTools.clean(path);
+            //startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE2);
+            File path = new File(SCamera.getInstance().getFolderName(".tmp"));
+            //AppTools.clean(path);
             if(path.exists() || path.mkdirs())
             {
                 try
                 {
                     tempFile = new File(path,String.format("%s.jpg",AppTools.getUniqueString()));
                     Uri imageUri = FileProvider.getUriForFile(this,"com.tutorials.camera",tempFile);
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
+                    //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(tempFile));
                     takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                 }
@@ -166,7 +171,7 @@ public class CaptureActivity extends AppCompatActivity
                     tempFile = null;
                     Toast.makeText(getApplicationContext(), ex.getMessage(),Toast.LENGTH_LONG).show();
                 }
-            }*/
+            }
         }
     }
 
@@ -186,6 +191,7 @@ public class CaptureActivity extends AppCompatActivity
         {
             if(resultCode == RESULT_OK)
             {
+                //File path = new File(SCamera.getInstance().getFolderName(".tmp"));
                 if(tempFile !=null)
                 {
                     try
@@ -199,12 +205,18 @@ public class CaptureActivity extends AppCompatActivity
                         /*Intent intent = new Intent(CaptureActivity.this,PhotoEditorActivity.class);
                         intent.putExtra("filePath",tempFile.getAbsolutePath());
                         startActivityForResult(intent, EXTERNAL_IMAGE_CAPTURE);*/
+                        tempFile.delete();
+                        tempFile = null;
                         Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
+                        bitmapAdapter.addPath(currentFile.getAbsolutePath());
                     }
                     catch (IOException e)
                     {
                         Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-                        e.printStackTrace();
+
+                        AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
+                        Glide.with(this).load(tempFile.getAbsolutePath()).into(imagePreview);
+                        bitmapAdapter.addPath(tempFile.getAbsolutePath());
                     }
                 }
             }
@@ -252,7 +264,31 @@ public class CaptureActivity extends AppCompatActivity
                     Bitmap imageBitmap = (Bitmap) extras.get("data");
                     AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
                     imagePreview.setImageBitmap(imageBitmap);
-                    bitmapAdapter.addBitmap(imageBitmap);
+                    //bitmapAdapter.addPath(imageBitmap);
+                }
+            }
+        }
+        else if(requestCode==UCrop.REQUEST_CROP)
+        {
+            if(resultCode == RESULT_OK)
+            {
+                try
+                {
+                    File path = new File(SCamera.getInstance().getFolderName(".tmp"),String.format("%s",AppTools.getUniqueString()));
+                    currentFile = new Compressor(this)
+                            .setDestinationDirectoryPath(path.getAbsolutePath())
+                            .setCompressFormat(Bitmap.CompressFormat.WEBP)
+                            .compressToFile(newFile);
+
+                    AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
+                    Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
+                    bitmapAdapter.addPath(currentFile.getAbsolutePath());
+
+                    newFile.delete();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
                 }
             }
         }
@@ -283,77 +319,90 @@ public class CaptureActivity extends AppCompatActivity
         TextInputEditText descEdt = findViewById(R.id.descEdt);
         descEdt.setError(null);
         TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
-        if(codeEdt.getText()!=null || barCodeEdt.getText()!=null && bitmapAdapter.getItemCount()>0)
+
+        AppCompatSpinner foldersSpinner = findViewById(R.id.foldersSpinner);
+        Folder folder = (Folder)foldersSpinner.getSelectedItem();
+
+        if((codeEdt.getText()!=null || barCodeEdt.getText()!=null) && bitmapAdapter.getItemCount()>0 && folder!=null && folder.getFolderId()!=Long.MIN_VALUE)
         {
             String codeText = codeEdt.getText().toString();
             String barCodeText = codeEdt.getText().toString();
             if(!codeText.trim().isEmpty() || !barCodeText.trim().isEmpty())
             {
-                File path = new File(app.getFolderName());
+                File path = new File(app.getFolderName(folder.getFolderString()));
                 {
-                    try
+
+                    if(path.mkdirs() || path.exists())
                     {
-
-                        if(path.mkdirs() || path.exists())
+                        LocalData localData = new LocalData(app.getApplicationContext());
+                        Date date = localData.getDate("savingDate");
+                        Integer invoiceDayCounter = 1;
+                        String pictureNumberByFolder = folder.getFolderString();
+                        if(date!=null)
                         {
-                            LocalData localData = new LocalData(app.getApplicationContext());
-
-                            Date date = localData.getDate("savingDate");
-                            Integer pNumber = 1;
-                            if(date!=null)
+                            if(AppTools.dateCompare(new Date(),date))
                             {
-                                if(AppTools.dateCompare(new Date(),date))
+                                invoiceDayCounter = localData.getInteger(pictureNumberByFolder);
+                                if(invoiceDayCounter!=null)
                                 {
-                                    pNumber = localData.getInteger("pictureNumber");
-                                    pNumber = pNumber+1;
-                                    localData.setInteger("pictureNumber",pNumber);
+                                    invoiceDayCounter = invoiceDayCounter +1;
+                                    localData.setInteger(pictureNumberByFolder, invoiceDayCounter);
                                 }
                                 else
                                 {
-                                    date = new Date();
-                                    localData.setDate("savingDate",date);
-                                    localData.setInteger("pictureNumber",pNumber);
+                                    invoiceDayCounter = 1;
+                                    localData.setInteger(pictureNumberByFolder, invoiceDayCounter);
                                 }
-
                             }
                             else
                             {
                                 date = new Date();
                                 localData.setDate("savingDate",date);
-                                localData.setInteger("pictureNumber",pNumber);
+                                localData.setInteger(pictureNumberByFolder, invoiceDayCounter);
                             }
 
-                            Invoice invoice = new Invoice();
-                            invoice.setInvoiceCode(codeEdt.getText().toString());
-                            if(descEdt.getText()!=null)
-                            invoice.setInvoiceDesc(descEdt.getText().toString());
+                        }
+                        else
+                        {
+                            date = new Date();
+                            localData.setDate("savingDate",date);
+                            localData.setInteger(pictureNumberByFolder, invoiceDayCounter);
+                        }
 
-                            invoice.setInvoiceBarCode(barCodeEdt.getText().toString());
+                        Invoice invoice = new Invoice();
+                        invoice.setInvoiceCode(codeEdt.getText().toString());
+                        if(descEdt.getText()!=null)
+                        invoice.setInvoiceDesc(descEdt.getText().toString());
 
-                            invoice.setBranchId(app.getCurrentUser().getBranchId());
+                        invoice.setInvoiceBarCode(barCodeEdt.getText().toString());
 
-                            User user = app.getCurrentUser();
+                        invoice.setBranchId(app.getCurrentUser().getBranchId());
 
-                            invoice.setUserId(user.getUserId());
-                            invoice.setFolderId(app.getFolder().getFolderId());
-                            invoice.setSavingDate(AppTools.getCurrentDate());
-                            invoice.setUploaded(false);
+                        User user = app.getCurrentUser();
 
-                            InvoiceDao invoiceDao = app.getDaoSession().getInvoiceDao();
-                            invoiceDao.insert(invoice);
+                        invoice.setUserId(user.getUserId());
+                        invoice.setFolderId(folder.getFolderId());
+                        invoice.setSavingDate(AppTools.getCurrentDate());
+                        invoice.setUploaded(false);
 
-                            @SuppressLint("SimpleDateFormat")
-                            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+                        InvoiceDao invoiceDao = app.getDaoSession().getInvoiceDao();
+                        invoiceDao.insert(invoice);
 
-                            List<Bitmap> bitmaps = bitmapAdapter.getBitmapList();
-                            for(int i=0;i<bitmaps.size();i++)
+                        @SuppressLint("SimpleDateFormat")
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+
+                        List<String> paths = bitmapAdapter.getPaths();
+                        int position = 0;
+                        for(int i=0;i<paths.size();i++)
+                        {
+                            position = position+1;
+                            String reportDate = df.format(date);
+                            String fileName = String.format("%s-%s-%s-%s.jpg",reportDate, invoiceDayCounter,position,user.getUserName());
+                            File file = new File(path, fileName);
+                            try
                             {
-                                String reportDate = df.format(date);
-                                String fileName = String.format("%s-%s-%s-%s.jpg",reportDate,pNumber,i+1,user.getUserName());
-                                File file = new File(path, fileName);
-                                FileOutputStream fileOutputStream = new FileOutputStream(file);
-                                Bitmap bitmap = bitmaps.get(i);
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                                copyFile(paths.get(i),file.getAbsolutePath());
+
                                 Picture picture = new Picture();
                                 picture.setInvoiceId(invoice.getInvoiceId());
                                 picture.setInvoice(invoice);
@@ -361,15 +410,28 @@ public class CaptureActivity extends AppCompatActivity
                                 picture.setPicturePath(file.getAbsolutePath());
                                 PictureDao pictureDao = app.getDaoSession().getPictureDao();
                                 pictureDao.insert(picture);
-                            }
 
-                            Toast.makeText(getApplicationContext(),"Saved",Toast.LENGTH_LONG).show();
-                            finish();
+                                File source = new File(paths.get(i));
+                                source.delete();
+                            }
+                            catch (IOException e)
+                            {
+                                Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+                                position = position-1;
+                                Log.e(CaptureActivity.class.getCanonicalName(), e.getMessage());
+                                e.printStackTrace();
+                            }
                         }
+
+                        Toast.makeText(getApplicationContext(),"Saved",Toast.LENGTH_LONG).show();
+                        finish();
                     }
-                    catch (FileNotFoundException e)
+                    else
                     {
-                        e.printStackTrace();
+                        Toast.makeText(getApplicationContext(),path.getPath(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),path.getPath(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(),path.getPath(),Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -386,6 +448,11 @@ public class CaptureActivity extends AppCompatActivity
             if(codeEdt.getText()==null)
             {
                 codeEdt.setError("Please insert the code");
+            }
+
+            if(folder==null || folder.getFolderId()==Long.MIN_VALUE)
+            {
+                ((TextView) foldersSpinner.getSelectedView()).setError(getString(R.string.please_select_folder));
             }
         }
 
@@ -430,14 +497,16 @@ public class CaptureActivity extends AppCompatActivity
     }
 
     @Override
-    public void viewClicked(Bitmap bitmap)
+    public void viewClicked(String path)
     {
+        /*AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
+        imagePreview.setImageBitmap(bitmap);*/
         AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
-        imagePreview.setImageBitmap(bitmap);
+        Glide.with(this).load(path).into(imagePreview);
     }
 
     @Override
-    public void viewLongClicked(final Bitmap bitmap)
+    public void viewLongClicked(final String path)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Confirmation");
@@ -452,7 +521,7 @@ public class CaptureActivity extends AppCompatActivity
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
-                bitmapAdapter.removeBitmap(bitmap);
+                bitmapAdapter.removeBitmap(path);
             }
         });
         AlertDialog alertDialog = builder.create();

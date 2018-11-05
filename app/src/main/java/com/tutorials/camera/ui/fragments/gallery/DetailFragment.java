@@ -59,10 +59,10 @@ public class DetailFragment extends _BaseFragment
         if(picture==null)
             return;
 
-        PhotoView photoView = view.findViewById(R.id.photoView);
+       /* PhotoView photoView = view.findViewById(R.id.photoView);
         Glide
                 .with(getContext())
                 .load(Uri.fromFile(new File(picture.getPicturePath())))
-                .into(photoView);
+                .into(photoView);*/
     }
 }

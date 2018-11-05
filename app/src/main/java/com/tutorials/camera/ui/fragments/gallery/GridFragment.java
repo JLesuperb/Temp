@@ -61,7 +61,7 @@ public class GridFragment extends _BaseFragment
         super.onViewCreated(view, savedInstanceState);
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
-        AppCompatActivity homeActivity = ((GalleryActivity)getActivity());
+        /*AppCompatActivity homeActivity = ((GalleryActivity)getActivity());
         if(homeActivity!=null)
         {
             homeActivity.setSupportActionBar(toolbar);
@@ -75,7 +75,7 @@ public class GridFragment extends _BaseFragment
             {
                 getActivity().getActionBar().setHomeButtonEnabled(true);
             }
-        }
+        }*/
 
         /*RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
         PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();

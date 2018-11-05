@@ -310,15 +310,15 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         User user = SCamera.getInstance().getCurrentUser();
         String token = String.format("Bearer %s", user.getToken());
         IFolders iFolders = RetrofitClient.getRetrofitInstance(HomeActivity.this).create(IFolders.class);
-        Call<Folder[]> call = iFolders.get(token);
-        call.enqueue(new Callback<Folder[]>() {
+        Call<List<Folder>> call = iFolders.get(token);
+        call.enqueue(new Callback<List<Folder>>() {
             @Override
-            public void onResponse(@NonNull Call<Folder[]> call, @NonNull Response<Folder[]> response)
+            public void onResponse(@NonNull Call<List<Folder>> call, @NonNull Response<List<Folder>> response)
             {
                 progressDialog.dismiss();
                 if(response.isSuccessful())
                 {
-                    Folder[] folders = response.body();
+                    List<Folder> folders = response.body();
                     if(folders!=null)
                     {
                         FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
@@ -333,7 +333,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             @Override
-            public void onFailure(@NonNull Call<Folder[]> call, @NonNull Throwable t)
+            public void onFailure(@NonNull Call<List<Folder>> call, @NonNull Throwable t)
             {
                 progressDialog.dismiss();
                 Toast.makeText(getApplicationContext(),"Connection Not found",Toast.LENGTH_LONG).show();

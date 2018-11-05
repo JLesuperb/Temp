@@ -171,7 +171,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
         });
 
 
-        viewHolder.cardView.setOnClickListener(new View.OnClickListener() {
+        viewHolder.invoiceIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
@@ -191,7 +191,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
             }
         });
 
-        viewHolder.cardView.setOnLongClickListener(new View.OnLongClickListener() {
+        viewHolder.invoiceIV.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view)
             {

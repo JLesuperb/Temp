@@ -69,7 +69,7 @@ public class PictureFragment extends _BaseFragment implements PictureAdapter.OnP
         super.onViewCreated(view, savedInstanceState);
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
-        AppCompatActivity homeActivity = ((GalleryActivity)getActivity());
+        /*AppCompatActivity homeActivity = ((GalleryActivity)getActivity());
         if(homeActivity!=null)
         {
             homeActivity.setSupportActionBar(toolbar);
@@ -83,7 +83,7 @@ public class PictureFragment extends _BaseFragment implements PictureAdapter.OnP
             {
                 getActivity().getActionBar().setHomeButtonEnabled(true);
             }
-        }
+        }*/
 
         if(getArguments()==null)
             return;

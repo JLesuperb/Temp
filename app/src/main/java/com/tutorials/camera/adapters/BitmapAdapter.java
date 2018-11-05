@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.bumptech.glide.Glide;
 import com.tutorials.camera.R;
 
 import java.util.ArrayList;
@@ -17,51 +18,51 @@ import java.util.List;
 
 public class BitmapAdapter extends RecyclerView.Adapter<BitmapAdapter.ViewHolder>
 {
-    private List<Bitmap> bitmapList;
+    private List<String> paths;
     private ImageViewClickListener clickListener;
     private ImageViewLongClickListener longClickListener;
 
     public BitmapAdapter()
     {
-        bitmapList = new ArrayList<>();
+        paths = new ArrayList<>();
     }
 
-    public void addBitmap(Bitmap bitmap)
+    public void addPath(String path)
     {
-        bitmapList.add(bitmap);
+        paths.add(path);
         notifyDataSetChanged();
     }
 
-    public void editBitmap(int index,Bitmap bitmap)
+    public void editBitmap(int index,String path)
     {
-        bitmapList.set(index,bitmap);
+        paths.set(index,path);
         notifyDataSetChanged();
     }
 
-    public List<Bitmap> getBitmapList()
+    public List<String> getPaths()
     {
-        return bitmapList;
+        return paths;
     }
 
-    public void removeBitmap(Bitmap bitmap)
+    public void removeBitmap(String path)
     {
-        int index = bitmapList.indexOf(bitmap);
-        bitmapList.remove(bitmap);
+        int index = path.indexOf(path);
+        paths.remove(path);
         notifyDataSetChanged();
-        if(bitmapList.size()>0)
+        if(paths.size()>0)
         {
-            if(index<bitmapList.size())
+            if(index<paths.size())
             {
                 if(clickListener!=null)
                 {
-                    clickListener.viewClicked(bitmapList.get(index));
+                    clickListener.viewClicked(paths.get(index));
                 }
             }
-            else if(index - 1 < bitmapList.size())
+            else if(index - 1 < paths.size())
             {
                 if(clickListener!=null)
                 {
-                    clickListener.viewClicked(bitmapList.get(index-1));
+                    clickListener.viewClicked(paths.get(index-1));
                 }
             }
             else
@@ -106,14 +107,17 @@ public class BitmapAdapter extends RecyclerView.Adapter<BitmapAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i)
     {
-        final Bitmap bitmap = bitmapList.get(i);
-        viewHolder.pictureIV.setImageBitmap(bitmap);
+        final String path = paths.get(i);
+        View itemView = viewHolder.itemView;
+        //final Bitmap bitmap = bitmapList.get(i);
+        //viewHolder.pictureIV.setImageBitmap(bitmap);
+        Glide.with(itemView.getContext()).load(path).into(viewHolder.pictureIV);
         viewHolder.pictureIV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view)
             {
                 if(clickListener!=null)
-                    clickListener.viewClicked(bitmap);
+                    clickListener.viewClicked(path);
             }
         });
 
@@ -123,7 +127,7 @@ public class BitmapAdapter extends RecyclerView.Adapter<BitmapAdapter.ViewHolder
             public boolean onLongClick(View view)
             {
                 if(longClickListener!=null)
-                    longClickListener.viewLongClicked(bitmap);
+                    longClickListener.viewLongClicked(path);
                 return false;
             }
         });
@@ -132,7 +136,7 @@ public class BitmapAdapter extends RecyclerView.Adapter<BitmapAdapter.ViewHolder
     @Override
     public int getItemCount()
     {
-        return bitmapList.size();
+        return paths.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder
@@ -147,11 +151,11 @@ public class BitmapAdapter extends RecyclerView.Adapter<BitmapAdapter.ViewHolder
 
     public interface ImageViewClickListener
     {
-        void viewClicked(Bitmap bitmap);
+        void viewClicked(String path);
     }
 
     public interface ImageViewLongClickListener
     {
-        void viewLongClicked(Bitmap bitmap);
+        void viewLongClicked(String path);
     }
 }

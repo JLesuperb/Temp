@@ -74,7 +74,7 @@ public class InvoicesFragment extends _BaseFragment implements InvoiceAdapter.On
         super.onViewCreated(view, savedInstanceState);
 
         Toolbar toolbar = view.findViewById(R.id.toolbar);
-        AppCompatActivity homeActivity = ((GalleryActivity)getActivity());
+        /*AppCompatActivity homeActivity = ((GalleryActivity)getActivity());
         if(homeActivity!=null)
         {
             homeActivity.setSupportActionBar(toolbar);
@@ -88,7 +88,7 @@ public class InvoicesFragment extends _BaseFragment implements InvoiceAdapter.On
             {
                 getActivity().getActionBar().setHomeButtonEnabled(true);
             }
-        }
+        }*/
 
         if(getArguments()==null)
             return;
