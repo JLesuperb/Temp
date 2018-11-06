@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingTop="16dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp">
+
+    <!--Code Invoice-->
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/codeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:enabled="true"
+            android:cursorVisible="false"
+            android:textIsSelectable="false"
+            android:hint="@string/invoice_code" />
+    </android.support.design.widget.TextInputLayout>
+
+    <!--Description Invoice-->
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/descriptionEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="5"
+            android:scrollHorizontally="true"
+            android:gravity="top"
+            android:scrollbars="vertical"
+            android:inputType="textMultiLine"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:enabled="true"
+            android:cursorVisible="false"
+            android:textIsSelectable="false"
+            android:hint="@string/invoice_description" />
+    </android.support.design.widget.TextInputLayout>
+
+    <!--Folder Invoice-->
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/folderEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:maxLines="5"
+            android:scrollHorizontally="true"
+            android:gravity="top"
+            android:scrollbars="vertical"
+            android:inputType="textMultiLine"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:enabled="true"
+            android:cursorVisible="false"
+            android:textIsSelectable="false"
+            android:hint="@string/invoice_folder" />
+    </android.support.design.widget.TextInputLayout>
+
+    <!--BarCode Invoice-->
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp">
+        <android.support.design.widget.TextInputEditText
+            android:id="@+id/barCodeEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPersonName"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:enabled="true"
+            android:cursorVisible="false"
+            android:textIsSelectable="false"
+            android:hint="@string/invoice_barcode" />
+    </android.support.design.widget.TextInputLayout>
+</android.support.v7.widget.LinearLayoutCompat>

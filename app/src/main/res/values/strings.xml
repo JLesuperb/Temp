@@ -46,4 +46,9 @@
     <string name="zero">0</string>
     <string name="logout">Log out</string>
     <string name="empty">Empty</string>
+    <string name="show_detail">Show detail</string>
+    <string name="invoice_code">Invoice Code</string>
+    <string name="invoice_description">Invoice Description</string>
+    <string name="invoice_folder">Invoice Folder</string>
+    <string name="invoice_barcode">Invoice Barcode</string>
 </resources>

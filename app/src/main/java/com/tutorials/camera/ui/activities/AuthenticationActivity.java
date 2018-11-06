@@ -140,6 +140,11 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
     {
         UserDao userDao = SCamera.getInstance().getDaoSession().getUserDao();
         userDao.deleteAll();
+        List<User> list = userDao.loadAll();
+        if(list.size()>0)
+            findViewById(R.id.cleanTxt).setVisibility(View.VISIBLE);
+        else
+            findViewById(R.id.cleanTxt).setVisibility(View.GONE);
     }
 
     private void login(String userName, String userPass)

@@ -109,13 +109,14 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
+        super.onCreate(savedInstanceState);
         final User user = SCamera.getInstance().getCurrentUser();
         if(user==null)
         {
             startActivity(new Intent(getApplicationContext(),AuthenticationActivity.class));
             finish();
+            return;
         }
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         initViews();
@@ -142,6 +143,9 @@ public class MainActivity extends AppCompatActivity implements
         //String fullName = localData.getString(Params.USER_FULL_NAME);
         User user = SCamera.getInstance().getCurrentUser();
         AppCompatTextView fullNameTxt = header.findViewById(R.id.fullNameTxt);
+        fullNameTxt.setText(user.getUserName());
+
+        AppCompatTextView accountNameTxt = header.findViewById(R.id.accountNameTxt);
         fullNameTxt.setText(user.getUserName());
 
         recyclerView.addItemDecoration(new CardDecoration(5));
