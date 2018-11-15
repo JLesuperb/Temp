@@ -38,6 +38,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.tutorials.camera.R;
@@ -86,10 +87,12 @@ public class MainActivity extends AppCompatActivity implements
 
     private InvoiceAdapter adapter;
 
-    private BroadcastReceiver receiver = new BroadcastReceiver() {
+    private BroadcastReceiver receiver = new BroadcastReceiver()
+    {
 
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(Context context, Intent intent)
+        {
             Bundle bundle = intent.getExtras();
             if (bundle != null)
             {
@@ -101,6 +104,11 @@ public class MainActivity extends AppCompatActivity implements
                         adapter.update();
                         setPending();
                     }
+                    int state = bundle.getInt("state");
+                    if(state==0||state==-1)
+                        isLoading(false);
+                    else if(state==1)
+                        isLoading(true);
                 }
             }
         }
@@ -145,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements
         AppCompatTextView fullNameTxt = header.findViewById(R.id.fullNameTxt);
         fullNameTxt.setText(user.getUserName());
 
-        AppCompatTextView accountNameTxt = header.findViewById(R.id.accountNameTxt);
+        //AppCompatTextView accountNameTxt = header.findViewById(R.id.accountNameTxt);
         fullNameTxt.setText(user.getUserName());
 
         recyclerView.addItemDecoration(new CardDecoration(5));
@@ -296,6 +304,19 @@ public class MainActivity extends AppCompatActivity implements
     {
         Intent i= new Intent(this, UploadService.class);
         startService(i);
+        isLoading(true);
+
+    }
+
+    private void isLoading(Boolean state)
+    {
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+        if(progressBar!=null)
+        {
+            int visibility = (state)?View.VISIBLE:View.GONE;
+            progressBar.setVisibility(visibility);
+        }
+
     }
 
     @Override
@@ -379,6 +400,7 @@ public class MainActivity extends AppCompatActivity implements
                     if(folders!=null)
                     {
                         FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
+                        folderDao.deleteAll();
                         folderDao.insertOrReplaceInTx(folders);
                         Toast.makeText(MainActivity.this,"Folders updated",Toast.LENGTH_SHORT).show();
                     }
@@ -438,6 +460,7 @@ public class MainActivity extends AppCompatActivity implements
         builder.show();
     }
 
+    @NonNull
     private Boolean hasFolders()
     {
         FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();

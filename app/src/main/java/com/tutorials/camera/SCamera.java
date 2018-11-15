@@ -30,15 +30,13 @@ public class SCamera extends Application
     @Contract(pure = true)
     public static SCamera getInstance() { return _Instance; }
 
-    private byte[] bytes;
     private DaoSession mDaoSession;
-    private String folderName;
 
     @Override
     public void onCreate()
     {
         super.onCreate();
-        mDaoSession = new DaoMaster(new DbHelper(this, "SCamera.db").getWritableDb()).newSession();
+        mDaoSession = new DaoMaster(new DbHelper(this, "SArchives.db").getWritableDb()).newSession();
         LocalData localData = new LocalData(getApplicationContext());
         if(localData.getString("serverAddress")!=null)
         {
@@ -51,24 +49,8 @@ public class SCamera extends Application
         return mDaoSession;
     }
 
-    public byte[] getBytes()
+    public String getFolderName(String folder)
     {
-        return bytes;
-    }
-
-    public void setBytes(byte[] bytes)
-    {
-        this.bytes = bytes;
-    }
-
-    public String getFolderName() {
-        String root = Environment.getExternalStorageDirectory().toString();
-        File parentFile = new File(root,"SCamera");
-        File file = new File(parentFile,folderName);
-        return file.getAbsolutePath();
-    }
-
-    public String getFolderName(String folder) {
         String root = Environment.getExternalStorageDirectory().toString();
         File parentFile = new File(root,"SCamera");
         File file = new File(parentFile,folder);
@@ -76,7 +58,6 @@ public class SCamera extends Application
     }
 
     public void setFolderName(String folderName) {
-        this.folderName = folderName;
     }
 
     public void setCurrentUser(User currentUser) {

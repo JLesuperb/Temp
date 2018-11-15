@@ -143,14 +143,13 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     private void loadList()
     {
         List<Folder> list = new ArrayList<>();
-
         FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
-        List<Folder> folders = folderDao.loadAll();
+        List<Folder> folders = folderDao.queryBuilder().where(FolderDao.Properties.ParentId.eq(null)).list();
         String defaultFolder = new LocalData(this).getString("defaultFolder");
         Integer selected = Integer.MIN_VALUE;
         if(folders.size()>0)
         {
-            list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_folder)));
+            list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_folder),null,null));
             //list.addAll(folders);
             for(int i=0;i<folders.size();i++)
             {

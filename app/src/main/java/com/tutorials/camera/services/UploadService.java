@@ -15,6 +15,8 @@ import android.widget.Toast;
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
 import com.tutorials.camera.interfaces.IInvoices;
+import com.tutorials.camera.models.Folder;
+import com.tutorials.camera.models.FolderDao;
 import com.tutorials.camera.models.Invoice;
 import com.tutorials.camera.models.InvoiceDao;
 import com.tutorials.camera.models.Picture;
@@ -145,6 +147,9 @@ public class UploadService extends Service
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
 
+        FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
+        Folder folder = folderDao.queryBuilder().where(FolderDao.Properties.FolderId.eq(invoice.getFolderId())).limit(1).unique();
+
         String token = String.format("Bearer %s", SCamera.getInstance().getToken());
 
         builder.addFormDataPart("InvoiceCode",invoice.getInvoiceCode());
@@ -153,6 +158,7 @@ public class UploadService extends Service
         builder.addFormDataPart("UserFId",invoice.getUserId().toString());
         builder.addFormDataPart("BranchFId",invoice.getBranchId().toString());
         builder.addFormDataPart("DirectoryFId",invoice.getFolderId().toString());
+        builder.addFormDataPart("DrivePath",folder.getDrivePath());
 
         PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
         List<Picture> pictures = pictureDao.queryBuilder()
@@ -191,7 +197,7 @@ public class UploadService extends Service
                 else
                 {
                     Toast.makeText(getApplicationContext(),"Server Error",Toast.LENGTH_LONG).show();
-                    publishResults(0,Activity.RESULT_CANCELED);
+                    publishResults(-1,Activity.RESULT_CANCELED);
                     stopSelf();
                 }
             }

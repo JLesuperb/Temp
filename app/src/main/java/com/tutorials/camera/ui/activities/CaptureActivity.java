@@ -19,6 +19,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,8 +56,7 @@ import id.zelory.compressor.Compressor;
 public class CaptureActivity extends AppCompatActivity
         implements
         View.OnClickListener,
-        View.OnLongClickListener, BitmapAdapter.ImageViewClickListener, BitmapAdapter.ImageViewLongClickListener
-{
+        View.OnLongClickListener, BitmapAdapter.ImageViewClickListener, BitmapAdapter.ImageViewLongClickListener, AdapterView.OnItemSelectedListener {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_IMAGE_CAPTURE2 = 5;
     static final int EXTERNAL_IMAGE_CAPTURE = 3;
@@ -122,12 +122,12 @@ public class CaptureActivity extends AppCompatActivity
         List<Folder> list = new ArrayList<>();
 
         FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
-        List<Folder> folders = folderDao.loadAll();
+        List<Folder> folders = folderDao.queryBuilder().where(FolderDao.Properties.ParentId.isNull()).list();
         String defaultFolder = new LocalData(this).getString("defaultFolder");
         Integer selected = Integer.MIN_VALUE;
         if(folders.size()>0)
         {
-            list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_folder)));
+            list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_folder),null,null));
             //list.addAll(folders);
             for(int i=0;i<folders.size();i++)
             {
@@ -141,7 +141,7 @@ public class CaptureActivity extends AppCompatActivity
 
         MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this,list);
         foldersSpinner.setAdapter(mySpinnerAdapter);
-
+        foldersSpinner.setOnItemSelectedListener(this);
         if(selected!=Integer.MIN_VALUE)
         {
             foldersSpinner.setSelection((selected+1));
@@ -191,7 +191,6 @@ public class CaptureActivity extends AppCompatActivity
         {
             if(resultCode == RESULT_OK)
             {
-                //File path = new File(SCamera.getInstance().getFolderName(".tmp"));
                 if(tempFile !=null)
                 {
                     try
@@ -202,9 +201,6 @@ public class CaptureActivity extends AppCompatActivity
                                 .setCompressFormat(Bitmap.CompressFormat.WEBP)
                                 .compressToFile(tempFile);
                         AppCompatImageView imagePreview = findViewById(R.id.imagePreview);
-                        /*Intent intent = new Intent(CaptureActivity.this,PhotoEditorActivity.class);
-                        intent.putExtra("filePath",tempFile.getAbsolutePath());
-                        startActivityForResult(intent, EXTERNAL_IMAGE_CAPTURE);*/
                         tempFile.delete();
                         tempFile = null;
                         Glide.with(this).load(currentFile.getAbsolutePath()).into(imagePreview);
@@ -323,13 +319,38 @@ public class CaptureActivity extends AppCompatActivity
         AppCompatSpinner foldersSpinner = findViewById(R.id.foldersSpinner);
         Folder folder = (Folder)foldersSpinner.getSelectedItem();
 
-        if((codeEdt.getText()!=null || barCodeEdt.getText()!=null) && bitmapAdapter.getItemCount()>0 && folder!=null && folder.getFolderId()!=Long.MIN_VALUE)
+        AppCompatSpinner subFoldersSpinner = findViewById(R.id.subFoldersSpinner);
+        Folder subFolder = (Folder)subFoldersSpinner.getSelectedItem();
+        Boolean subFolderChecked = false;
+        if(subFoldersSpinner.getAdapter()!=null)
+        {
+            if(subFoldersSpinner.getAdapter().getCount()>0)
+            {
+                if(subFolder!=null)
+                {
+                    subFolderChecked = true;
+                }
+            }
+            else
+            {
+                subFolderChecked = true;
+            }
+        }
+        else
+        {
+            subFolderChecked = true;
+        }
+
+        if((codeEdt.getText()!=null || barCodeEdt.getText()!=null)
+                && bitmapAdapter.getItemCount()>0 && folder!=null
+                && folder.getFolderId()!=Long.MIN_VALUE && subFolderChecked )
         {
             String codeText = codeEdt.getText().toString();
             String barCodeText = codeEdt.getText().toString();
             if(!codeText.trim().isEmpty() || !barCodeText.trim().isEmpty())
             {
-                File path = new File(app.getFolderName(folder.getFolderString()));
+                String folderString = (subFolder!=null) ? String.format("%s/%s",folder.getFolderString(),subFolder.getFolderString()) : folder.getFolderString();
+                File path = new File(app.getFolderName(folderString));
                 {
 
                     if(path.mkdirs() || path.exists())
@@ -381,7 +402,8 @@ public class CaptureActivity extends AppCompatActivity
                         User user = app.getCurrentUser();
 
                         invoice.setUserId(user.getUserId());
-                        invoice.setFolderId(folder.getFolderId());
+                        Long folderId = (subFolder!=null)? subFolder.getFolderId() : folder.getFolderId();
+                        invoice.setFolderId(folderId);
                         invoice.setSavingDate(AppTools.getCurrentDate());
                         invoice.setUploaded(false);
 
@@ -453,6 +475,11 @@ public class CaptureActivity extends AppCompatActivity
             if(folder==null || folder.getFolderId()==Long.MIN_VALUE)
             {
                 ((TextView) foldersSpinner.getSelectedView()).setError(getString(R.string.please_select_folder));
+            }
+
+            if(!subFolderChecked)
+            {
+                ((TextView) subFoldersSpinner.getSelectedView()).setError(getString(R.string.please_select_folder));
             }
         }
 
@@ -526,5 +553,54 @@ public class CaptureActivity extends AppCompatActivity
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l)
+    {
+        switch (adapterView.getId())
+        {
+            case R.id.foldersSpinner:
+                Folder folder = (Folder)adapterView.getSelectedItem();
+                if(folder!=null && folder.getFolderId()!=Long.MIN_VALUE)
+                {
+
+                    FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
+                    List<Folder> folders = folderDao.queryBuilder().where(FolderDao.Properties.ParentId.eq(folder.getFolderId())).list();
+                    if(folders.size()>0)
+                    {
+                        List<Folder> list = new ArrayList<>();
+                        list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_sub_folder),null,null));
+                        list.addAll(folders);
+                        AppCompatSpinner subFoldersSpinner = findViewById(R.id.subFoldersSpinner);
+
+                        MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this,list);
+                        subFoldersSpinner.setAdapter(mySpinnerAdapter);
+                        subFoldersSpinner.setVisibility(View.VISIBLE);
+                    }
+                    else
+                    {
+                        AppCompatSpinner subFoldersSpinner = findViewById(R.id.subFoldersSpinner);
+                        MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this, new ArrayList<Folder>());
+                        subFoldersSpinner.setAdapter(mySpinnerAdapter);
+                        subFoldersSpinner.setVisibility(View.GONE);
+                    }
+
+                }
+                else
+                {
+                    AppCompatSpinner subFoldersSpinner = findViewById(R.id.subFoldersSpinner);
+                    MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this, new ArrayList<Folder>());
+                    subFoldersSpinner.setAdapter(mySpinnerAdapter);
+                    subFoldersSpinner.setVisibility(View.GONE);
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView)
+    {
+
     }
 }

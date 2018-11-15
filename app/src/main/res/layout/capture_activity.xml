@@ -78,6 +78,15 @@
             android:spinnerMode="dialog"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            style="@style/Widget.AppCompat.Spinner.Underlined"
+            android:layout_marginBottom="8dp"/>
+
+        <android.support.v7.widget.AppCompatSpinner
+            android:visibility="gone"
+            android:id="@+id/subFoldersSpinner"
+            android:spinnerMode="dialog"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             style="@style/Widget.AppCompat.Spinner.Underlined"/>
 
         <!--Description BarCode-->

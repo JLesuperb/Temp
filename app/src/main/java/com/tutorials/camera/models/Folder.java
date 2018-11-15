@@ -24,17 +24,43 @@ public class Folder implements Serializable
     @SerializedName("DirectoryName")
     private String folderString;
 
+    @Property(nameInDb = "DrivePath")
+    @SerializedName("DrivePath")
+    private String drivePath;
+
+    @Property(nameInDb = "ParentFId")
+    @SerializedName("ParentFId")
+    private Long parentId;
+
     @Transient
     private Boolean isChecked = false;
 
-    @Generated(hash = 937473288)
-    public Folder(Long folderId, String folderString) {
+
+    @Generated(hash = 1855408798)
+    public Folder(Long folderId, String folderString, String drivePath,
+            Long parentId) {
         this.folderId = folderId;
         this.folderString = folderString;
+        this.drivePath = drivePath;
+        this.parentId = parentId;
     }
 
     @Generated(hash = 1947132626)
     public Folder() {
+    }
+
+
+    @Override
+    public String toString() {
+        return folderString;
+    }
+
+    public Boolean getChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(Boolean checked) {
+        isChecked = checked;
     }
 
     public Long getFolderId() {
@@ -53,25 +79,19 @@ public class Folder implements Serializable
         this.folderString = folderString;
     }
 
-
-    @Override
-    public String toString() {
-        return folderString;
+    public String getDrivePath() {
+        return this.drivePath;
     }
 
-    public Boolean getChecked() {
-        return isChecked;
+    public void setDrivePath(String drivePath) {
+        this.drivePath = drivePath;
     }
 
-    public void setChecked(Boolean checked) {
-        isChecked = checked;
+    public Long getParentId() {
+        return this.parentId;
     }
 
-    public Boolean getIsChecked() {
-        return this.isChecked;
-    }
-
-    public void setIsChecked(Boolean isChecked) {
-        this.isChecked = isChecked;
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
     }
 }
