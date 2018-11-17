@@ -8,7 +8,7 @@
     <string name="ok">OK</string>
     <string name="input_your_code">Input your code</string>
     <string name="input_your_description">Input your description</string>
-    <string name="click_to_scan_your_scan_the_bar_code">Click to scan your scan the barcode</string>
+    <string name="click_to_scan_your_scan_the_bar_code">Barcode</string>
     <string name="save">Save</string>
     <string name="mode">Mode</string>
     <string name="enter_comments_optional">Enter the server link</string>

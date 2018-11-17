@@ -17,6 +17,8 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -98,8 +100,10 @@ public class CaptureActivity extends AppCompatActivity
         loadList();
 
         dispatchTakePictureIntent();
+
         TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
-        barCodeEdt.setOnFocusChangeListener(new View.OnFocusChangeListener()
+        barCodeEdt.setOnClickListener(this);
+        /*barCodeEdt.setOnFocusChangeListener(new View.OnFocusChangeListener()
         {
             @Override
             public void onFocusChange(View view, boolean b)
@@ -111,7 +115,29 @@ public class CaptureActivity extends AppCompatActivity
                     view.clearFocus();
                 }
             }
+        });*/
+
+        barCodeEdt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2)
+            {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable)
+            {
+                int res = (!editable.toString().trim().isEmpty()) ? R.drawable.ic_cancel:R.drawable.ic_barcode;
+                ((AppCompatImageView)findViewById(R.id.barCodeImageView)).setImageResource(res);
+            }
         });
+
+        findViewById(R.id.barCodeImageView).setOnClickListener(this);
     }
 
 
@@ -303,6 +329,41 @@ public class CaptureActivity extends AppCompatActivity
                 break;
             case R.id.captureBtn:
                 dispatchTakePictureIntent();
+                break;
+            case R.id.barCodeImageView:
+                TextInputEditText barCodeEdt = findViewById(R.id.barCodeEdt);
+                if(barCodeEdt.getText()!=null)
+                {
+                    String barCode = barCodeEdt.getText().toString();
+                    if(barCode.matches(""))
+                    {
+                        if(!isQuery)
+                        {
+                            dispatchTakeBarCodeIntent();
+                            isQuery = true;
+                        }
+                    }
+                    else
+                    {
+                        barCodeEdt.setText("");
+                    }
+                }
+                else
+                {
+                    if(!isQuery)
+                    {
+                        dispatchTakeBarCodeIntent();
+                        isQuery = true;
+                    }
+
+                }
+                break;
+            case R.id.barCodeEdt:
+                if(!isQuery)
+                {
+                    dispatchTakeBarCodeIntent();
+                    isQuery = true;
+                }
                 break;
         }
     }

@@ -9,7 +9,7 @@
     <string name="ok">OK</string>
     <string name="input_your_code">Entrez le code</string>
     <string name="input_your_description">Entrez la description</string>
-    <string name="click_to_scan_your_scan_the_bar_code">Cliquez pour scanner votre code-barres</string>
+    <string name="click_to_scan_your_scan_the_bar_code">Code-barres</string>
     <string name="save">Sauvegarder</string>
     <string name="mode">Mode</string>
     <string name="enter_comments_optional">Entrez le lien du serveur</string>

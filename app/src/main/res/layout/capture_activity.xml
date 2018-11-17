@@ -90,18 +90,41 @@
             style="@style/Widget.AppCompat.Spinner.Underlined"/>
 
         <!--Description BarCode-->
-        <android.support.design.widget.TextInputLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <android.support.design.widget.TextInputEditText
-                android:id="@+id/barCodeEdt"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/barCodeLayout"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/barCodeEdt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:enabled="true"
+                    android:cursorVisible="false"
+                    android:inputType="textPersonName"
+                    android:hint="@string/click_to_scan_your_scan_the_bar_code" />
+            </android.support.design.widget.TextInputLayout>
+            <android.support.v7.widget.AppCompatImageView
+                android:id="@+id/barCodeImageView"
+                android:clickable="true"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:hint="@string/click_to_scan_your_scan_the_bar_code" />
-        </android.support.design.widget.TextInputLayout>
+                android:layout_alignBottom="@id/barCodeLayout"
+                android:layout_alignTop="@id/barCodeLayout"
+                android:layout_alignRight="@id/barCodeLayout"
+                android:layout_alignEnd="@id/barCodeLayout"
+                android:layout_marginRight="5dp"
+                android:layout_marginEnd="5dp"
+                android:src="@drawable/ic_barcode"
+                android:focusable="true" />
+        </RelativeLayout>
+
 
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/saveBtn"
