@@ -30,6 +30,7 @@
     <string name="folders_sync">Synchronisation des dossiers</string>
     <string name="default_folder">Définir un dossier par défaut</string>
     <string name="please_select_folder">Sélectionner le dossier</string>
+    <string name="please_select_sub_folder">Sélectionner le sous dossier</string>
     <string name="server_updated">Le serveur est à jour</string>
     <string name="gallery">Voir les images non envoyées</string>
     <string name="textvv">TextVV</string>
@@ -47,4 +48,20 @@
     <string name="zero">0</string>
     <string name="logout">Deconnexion</string>
     <string name="empty">Vide</string>
+
+    <string name="show_detail">Voir detail</string>
+    <string name="invoice_code">Invoice Code</string>
+    <string name="invoice_description">Invoice Description</string>
+    <string name="invoice_folder">Invoice Dossier</string>
+    <string name="invoice_barcode">Invoice Barcode</string>
+
+    <string name="the_server_is_not_found_please_check_your_internet_connection">Le serveur est introuvable\nVeuillez verifier votre connexion internet</string>
+    <string name="your_internet_connection_is_too_slow_please_try_again">Votre connection internet est trop lent\nVeuillez réessayer encore</string>
+    <string name="no_internet_connection_check_your_internet_connection_and_try_again">Pas de connexion internet\nVeuillez verifier votre connexion internet</string>
+    <string name="network_failed_please_check_your_internet_connection">Échec du réseau\nVeuillez vérifier votre connexion Internet</string>
+    <string name="folders_updated">Dossiers à jour</string>
+    <string name="update">Vérifier votre mise à jour</string>
+    <string name="there_are_a_new_update">Il y\'a une nouvelle mise à jour voulez-vous le telecharger?</string>
+    <string name="you_are_up_to_date">Vous etes à jour</string>
+    <string name="this_app_cant_talk_with_server">Le serveur ne reconnaît pas cette application</string>
 </resources>

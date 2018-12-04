@@ -10,7 +10,6 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
@@ -21,6 +20,7 @@ import com.tutorials.camera.models.Invoice;
 import com.tutorials.camera.models.InvoiceDao;
 import com.tutorials.camera.models.Picture;
 import com.tutorials.camera.models.PictureDao;
+import com.tutorials.camera.tools.AppTools;
 import com.tutorials.camera.tools.RetrofitClient;
 
 import java.io.File;
@@ -42,7 +42,6 @@ public class UploadService extends Service
     //public static final String CHANNEL_2_ID = "channel2";
 
     private Long lastId = Long.MIN_VALUE;
-    private Invoice lastInvoice;
     Integer i = 0;
 
     @Override
@@ -96,21 +95,19 @@ public class UploadService extends Service
                 {
                     uploadPicture(invoice,i);
                     lastId = invoice.getInvoiceId();
-                    lastInvoice = invoice;
                 }
                 else
                 {
                     invoice = invoiceDao.queryBuilder().where(InvoiceDao.Properties.Uploaded.eq(false),InvoiceDao.Properties.InvoiceId.notEq(lastId)).limit(1).unique();
                     uploadPicture(invoice,i);
                     lastId = invoice.getInvoiceId();
-                    lastInvoice = invoice;
                 }
             }
         }
         else
         {
             publishResults(0,Activity.RESULT_OK);
-            Toast.makeText(getApplicationContext(),getText(R.string.server_updated),Toast.LENGTH_LONG).show();
+            AppTools.toastError(getApplicationContext(),getString(R.string.server_updated));
             stopSelf();
         }
     }
@@ -142,6 +139,8 @@ public class UploadService extends Service
 
     private void process(final Invoice invoice, final NotificationManager mNotifyManager, final Integer i)
     {
+        publishProgress(invoice);
+
         String root = Environment.getExternalStorageDirectory().toString();
 
         MultipartBody.Builder builder = new MultipartBody.Builder();
@@ -196,7 +195,7 @@ public class UploadService extends Service
                 }
                 else
                 {
-                    Toast.makeText(getApplicationContext(),"Server Error",Toast.LENGTH_LONG).show();
+                    AppTools.toastError(getApplicationContext(),getString(R.string.the_server_is_not_found_please_check_your_internet_connection));
                     publishResults(-1,Activity.RESULT_CANCELED);
                     stopSelf();
                 }
@@ -206,83 +205,28 @@ public class UploadService extends Service
             public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t)
             {
                 mNotifyManager.cancel(i);
-                //progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(),new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
-                //launch();
+                AppTools.toastError(getApplicationContext(),t);
                 publishResults(0,Activity.RESULT_CANCELED);
                 stopSelf();
             }
         });
-
-
-        //region Comment
-        /*IPictures iPictures = RetrofitClient.getRetrofitInstance(UploadService.this).create(IPictures.class);
-
-
-        File file = new File(picture.getFilePath());*/
-
-        /*RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
-        MultipartBody.Part body = MultipartBody.Part.createFormData("Picture", file.getName(), reqFile);
-
-        RequestBody code = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getCode());
-        RequestBody description = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getDescription());
-        RequestBody barCode = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getBarCode());
-        String phoneFolder = picture.getFilePath().replace(root,"");
-        RequestBody filePath = RequestBody.create(okhttp3.MultipartBody.FORM, phoneFolder);
-        RequestBody userId = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getUserId().toString());
-        RequestBody folderName = RequestBody.create(okhttp3.MultipartBody.FORM, file.getParentFile().getName());
-        User user = SCamera.getInstance().getCurrentUser();
-        RequestBody branchId = RequestBody.create(okhttp3.MultipartBody.FORM, user.getBranchId().toString());
-        RequestBody folderId = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getFolderId().toString());
-
-        RequestBody savingTime = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getSavingTime());
-
-        RequestBody pictureNumber = RequestBody.create(okhttp3.MultipartBody.FORM, picture.getPictureNumber().toString());
-
-        Call<ResponseBody> call = iPictures.upload(token,body,code,description,barCode,filePath,userId,folderName,branchId,folderId,savingTime, pictureNumber);
-        call.enqueue(new Callback<ResponseBody>() {
-            @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response)
-            {
-                mNotifyManager.cancel(i);
-                //progressDialog.dismiss();
-                if(response.isSuccessful())
-                {
-
-                    ///Toast.makeText(getApplicationContext(),"Success",Toast.LENGTH_SHORT).show();
-                    picture.setUploaded(true);
-                    PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
-                    pictureDao.update(picture);
-                    publishResults(1,Activity.RESULT_OK);
-                    launch();
-                }
-                else
-                {
-                    Toast.makeText(getApplicationContext(),"Server Error",Toast.LENGTH_LONG).show();
-                    publishResults(0,Activity.RESULT_CANCELED);
-                    stopSelf();
-                }
-            }
-
-            @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t)
-            {
-                mNotifyManager.cancel(i);
-                //progressDialog.dismiss();
-                Toast.makeText(getApplicationContext(),new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
-                //launch();
-                publishResults(0,Activity.RESULT_CANCELED);
-                stopSelf();
-            }
-        });*/
-        //endregion
     }
 
     private void publishResults(int state,int result)
     {
         Intent intent = new Intent(NOTIFICATION);
         intent.putExtra(RESULT, result);
+        intent.putExtra("result","result");
         intent.putExtra("state", state);
+        sendBroadcast(intent);
+    }
+
+    private void publishProgress(Invoice invoice)
+    {
+        Intent intent = new Intent(NOTIFICATION);
+        intent.putExtra(RESULT, Activity.RESULT_OK);
+        intent.putExtra("progress","progress");
+        intent.putExtra("invoice", invoice);
         sendBroadcast(intent);
     }
 }

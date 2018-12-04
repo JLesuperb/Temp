@@ -52,4 +52,13 @@
     <string name="invoice_description">Invoice Description</string>
     <string name="invoice_folder">Invoice Folder</string>
     <string name="invoice_barcode">Invoice Barcode</string>
+    <string name="the_server_is_not_found_please_check_your_internet_connection">The server is not found\nPlease check your internet connection</string>
+    <string name="your_internet_connection_is_too_slow_please_try_again">Your internet connection is too slow\nPlease try again</string>
+    <string name="no_internet_connection_check_your_internet_connection_and_try_again">No internet connection\nPlease Check your internet connection</string>
+    <string name="network_failed_please_check_your_internet_connection">Network failed\nPlease check your internet connection</string>
+    <string name="folders_updated">Folders updated</string>
+    <string name="update">Check update</string>
+    <string name="there_are_a_new_update">There is a new update do you want to download?</string>
+    <string name="you_are_up_to_date">You are up to date</string>
+    <string name="this_app_cant_talk_with_server">The server does not recognize this application</string>
 </resources>

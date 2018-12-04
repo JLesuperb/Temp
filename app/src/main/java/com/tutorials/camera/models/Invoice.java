@@ -50,6 +50,9 @@ public class Invoice implements Serializable
     @Transient
     private Boolean isChecked = false;
 
+    @Transient
+    private Boolean isInProgress = false;
+
     @Property(nameInDb = "SavingDate")
     private String savingDate;
 
@@ -150,5 +153,13 @@ public class Invoice implements Serializable
 
     public void setChecked(Boolean checked) {
         isChecked = checked;
+    }
+
+    public Boolean getInProgress() {
+        return isInProgress;
+    }
+
+    public void setInProgress(Boolean inProgress) {
+        isInProgress = inProgress;
     }
 }

@@ -51,13 +51,11 @@ public class SCamera extends Application
 
     public String getFolderName(String folder)
     {
+        //Environment.
         String root = Environment.getExternalStorageDirectory().toString();
         File parentFile = new File(root,"SCamera");
         File file = new File(parentFile,folder);
         return file.getAbsolutePath();
-    }
-
-    public void setFolderName(String folderName) {
     }
 
     public void setCurrentUser(User currentUser) {

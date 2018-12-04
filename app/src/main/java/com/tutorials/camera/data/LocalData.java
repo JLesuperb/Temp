@@ -69,6 +69,27 @@ public class LocalData
             return null;
     }
 
+    public void setLong(String key,Long value)
+    {
+        if(value!=null) {
+            editor.putLong(key,value);
+        }
+        else {
+            editor.remove(key);
+        }
+        editor.apply();
+        editor.commit();
+        editor.apply();
+    }
+
+    public Long getLong(String key)
+    {
+        if(preferences.contains(key))
+            return preferences.getLong(key,Long.MIN_VALUE);
+        else
+            return null;
+    }
+
     public Date getDate(String key)
     {
         if(preferences.contains(key))

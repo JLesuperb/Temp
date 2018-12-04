@@ -5,11 +5,19 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.support.annotation.NonNull;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatEditText;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +28,6 @@ import com.tutorials.camera.SCamera;
 import com.tutorials.camera.data.LocalData;
 import com.tutorials.camera.interfaces.ILink;
 import com.tutorials.camera.models.Link;
-import com.tutorials.camera.ui.activities.AuthenticationActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,16 +35,25 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
 
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -174,14 +190,10 @@ public class AppTools
                         new LocalData(activity).setString("serverAddress",link.getLinkText());
                         Toast.makeText(activity,SCamera.getInstance().getServerString(),Toast.LENGTH_LONG).show();
                     }
-                    else
-                    {
-                        Toast.makeText(activity,"null",Toast.LENGTH_LONG).show();
-                    }
                 }
                 else
                 {
-                   Toast.makeText(activity,"Server not found",Toast.LENGTH_LONG).show();
+                    AppTools.toastError(activity,activity.getString(R.string.the_server_is_not_found_please_check_your_internet_connection));
                 }
             }
 
@@ -189,7 +201,7 @@ public class AppTools
             public void onFailure(@NonNull Call<Link> call, @NonNull Throwable t)
             {
                 progressDialog.dismiss();
-                Toast.makeText(activity,new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
+                toastError(activity,t);
             }
         });
     }
@@ -327,5 +339,274 @@ public class AppTools
         }
 
         return mediaFile;
+    }
+
+    public static void toastError(Context context, String message)
+    {
+        Toast.makeText(context,message,Toast.LENGTH_SHORT).show();
+    }
+
+    public static void toastError(Context context, Throwable t)
+    {
+
+        if(t instanceof TimeoutException)
+        {
+            Toast.makeText(context,context.getString(R.string.your_internet_connection_is_too_slow_please_try_again),Toast.LENGTH_LONG).show();
+        }
+        else if(t instanceof SocketTimeoutException)
+        {
+            Toast.makeText(context,context.getString(R.string.your_internet_connection_is_too_slow_please_try_again),Toast.LENGTH_LONG).show();
+        }
+        else if(t instanceof SocketException)
+        {
+            Toast.makeText(context,context.getString(R.string.no_internet_connection_check_your_internet_connection_and_try_again),Toast.LENGTH_LONG).show();
+        }
+        else
+        {
+            Toast.makeText(context,context.getString(R.string.network_failed_please_check_your_internet_connection),Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public static void sync(final Activity activity)
+    {
+        ProgressDialog progressDialog = new ProgressDialog(activity);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        AsyncDownloader downloader = new AsyncDownloader();
+
+        /*Intent updateIntent = new Intent(Intent.ACTION_VIEW,
+                Uri.parse("http://173.212.228.130:1814/api/Versions/GetApp"));
+        activity.startActivity(updateIntent);*/
+
+        downloader.execute("http://173.212.228.130:1814/api/Versions/GetApp");
+        downloader.setProgressDialog(progressDialog);
+
+        downloader.setDownloadListener(new AsyncDownloader.DownloadListener() {
+            @Override
+            public void onCallback(AsyncDownloader.FileApk fileApk)
+            {
+                if(fileApk.isSuccess())
+                {
+                    File apkFile = new File(fileApk.getFileName());
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    Uri imageUri = FileProvider.getUriForFile(activity,"com.tutorials.camera",apkFile);
+                    intent.setDataAndType(imageUri, "application/vnd.android.package-archive");
+                    intent.addCategory("android.intent.category.DEFAULT");
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    activity.startActivity(intent);
+
+                    /*Intent promptInstall = new Intent(Intent.ACTION_VIEW)
+                            .setDataAndType(Uri.parse(fileApk.getFileName()),
+                                    "application/vnd.android.package-archive");
+                    promptInstall.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    activity.startActivity(promptInstall);*/
+
+                    /*Intent intent = new Intent(Intent.ACTION_VIEW);
+                    Uri imageUri = FileProvider.getUriForFile(activity,"com.tutorials.camera",apkFile);
+                    //intent.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
+                    intent.setDataAndType(imageUri, "application/vnd.android.package-archive");
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    activity.startActivity(intent);*/
+
+                    /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        Uri apkUri = FileProvider.getUriForFile(activity,"com.tutorials.camera",apkFile);
+                        Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+                        intent.setData(apkUri);
+                        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        activity.startActivity(intent);
+                    }
+                    else
+                        {
+                        Uri apkUri = Uri.fromFile(apkFile);
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setDataAndType(apkUri, "application/vnd.android.package-archive");
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        activity.startActivity(intent);
+                    }*/
+
+
+                }
+                else
+                {
+                    Toast.makeText(activity,fileApk.getErrorString(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public static boolean hasStorage(boolean requireWriteAccess) {
+        //TODO: After fix the bug,  add "if (VERBOSE)" before logging errors.
+        String state = Environment.getExternalStorageState();
+        Log.v("hasStorage", "storage state is " + state);
+
+        if (Environment.MEDIA_MOUNTED.equals(state))
+        {
+            if (requireWriteAccess) {
+                boolean writable = checkFsWritable();
+                Log.v("hasStorage", "storage writable is " + writable);
+                return writable;
+            } else {
+                return true;
+            }
+        }
+        else return !requireWriteAccess && Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
+    }
+
+    private static boolean checkFsWritable() {
+        // Create a temporary file to see whether a volume is really writeable.
+        // It's important not to put it in the root directory which may have a
+        // limit on the number of files.
+        String directoryName =
+                Environment.getExternalStorageDirectory().toString() + "/DCIM";
+        File directory = new File(directoryName);
+        if (!directory.isDirectory()) {
+            if (!directory.mkdirs()) {
+                return false;
+            }
+        }
+        File f = new File(directoryName, ".probe");
+        try {
+            // Remove stale file if any
+            if (f.exists()) {
+                f.delete();
+            }
+            if (!f.createNewFile()) {
+                return false;
+            }
+            f.delete();
+            return true;
+        } catch (IOException ex) {
+            return false;
+        }
+    }
+
+    public static HashSet<String> getExternalMounts() {
+        final HashSet<String> out = new HashSet<>();
+        String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";
+        String s = "";
+        try {
+            final Process process = new ProcessBuilder().command("mount")
+                    .redirectErrorStream(true).start();
+            process.waitFor();
+            final InputStream is = process.getInputStream();
+            final byte[] buffer = new byte[1024];
+            while (is.read(buffer) != -1) {
+                s = s + new String(buffer);
+            }
+            is.close();
+        } catch (final Exception e) {
+            e.printStackTrace();
+        }
+
+        // parse output
+        final String[] lines = s.split("\n");
+        for (String line : lines) {
+            if (!line.toLowerCase(Locale.US).contains("asec")) {
+                if (line.matches(reg)) {
+                    String[] parts = line.split(" ");
+                    for (String part : parts) {
+                        if (part.startsWith("/"))
+                            if (!part.toLowerCase(Locale.US).contains("vold"))
+                                out.add(part);
+                    }
+                }
+            }
+        }
+        return out;
+    }
+
+    @NonNull
+    public static List<File> getStorages(Context context)
+    {
+        File[] externalStorageFiles=ContextCompat.getExternalFilesDirs(context,null);
+        return Arrays.asList(externalStorageFiles);
+    }
+
+    public static final String SD_CARD = "sdCard";
+    public static final String EXTERNAL_SD_CARD = "externalSdCard";
+    private static final String ENV_SECONDARY_STORAGE = "SECONDARY_STORAGE";
+
+    public static Map<String, File> getAllStorageLocations()
+    {
+        Map<String, File> storageLocations = new HashMap<>(10);
+        File sdCard = Environment.getExternalStorageDirectory();
+        storageLocations.put(SD_CARD, sdCard);
+        final String rawSecondaryStorage = System.getenv(ENV_SECONDARY_STORAGE);
+        if (!TextUtils.isEmpty(rawSecondaryStorage))
+        {
+            String[] externalCards = rawSecondaryStorage.split(":");
+            for (int i = 0; i < externalCards.length; i++)
+            {
+                String path = externalCards[i];
+                storageLocations.put(EXTERNAL_SD_CARD + String.format(i == 0 ? "" : "_%d", i), new File(path));
+            }
+        }
+        return storageLocations;
+    }
+
+    public static Set<File> getStorageDirectories(Context context) {
+        HashSet<File> storageDirectories = null;
+        try
+        {
+            // Use reflection to retrieve storage volumes because required classes and methods are hidden in AOSP.
+            StorageManager storageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+            if(storageManager!=null)
+            {
+                Method method = storageManager.getClass().getMethod("getVolumeList");
+                StorageVolume[] storageVolumes = (StorageVolume[]) method.invoke(storageManager);
+                if (storageVolumes != null && storageVolumes.length > 0)
+                {
+                    storageDirectories = new HashSet<>();
+                    for (StorageVolume volume : storageVolumes) {
+                        //storageDirectories.add(new File(volume.));
+                    }
+                }
+            }
+
+
+        }
+        catch (Exception e)
+        {
+            Log.e("", e.getMessage());
+        }
+        return storageDirectories;
+    }
+
+    @NonNull
+    public static List<File> getRootFolders()
+    {
+        //String removableStoragePath;
+        File fileList[] = new File("/storage/").listFiles();
+        List<File> files = new ArrayList<>();
+        for (File file : fileList)
+        {
+            if(!file.getAbsolutePath().equalsIgnoreCase(Environment.getExternalStorageDirectory().getAbsolutePath()) && file.isDirectory() && file.canRead())
+            {
+                files.add(file);
+            }
+            //removableStoragePath = file.getAbsolutePath();
+        }
+        return files;
+    }
+
+    @NonNull
+    public static List<File> getExternalSDCards()
+    {
+        //String removableStoragePath;
+        File fileList[] = new File("/storage/").listFiles();
+        List<File> files = new ArrayList<>();
+        for (File file : fileList)
+        {
+            if(!file.getAbsolutePath().equalsIgnoreCase(Environment.getExternalStorageDirectory().getAbsolutePath()) && file.isDirectory() && file.canRead())
+            {
+                files.add(file);
+            }
+            //removableStoragePath = file.getAbsolutePath();
+        }
+        return files;
     }
 }

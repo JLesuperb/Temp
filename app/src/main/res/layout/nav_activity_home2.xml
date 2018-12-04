@@ -7,5 +7,8 @@
     android:orientation="vertical"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="10dp">
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/your_internet_connection_is_too_slow_please_try_again"/>
 </android.support.v7.widget.LinearLayoutCompat>

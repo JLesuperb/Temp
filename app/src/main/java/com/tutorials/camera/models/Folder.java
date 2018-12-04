@@ -1,12 +1,13 @@
 package com.tutorials.camera.models;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.SerializedName;
 
 import org.greenrobot.greendao.annotation.Entity;
+import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Property;
-import org.greenrobot.greendao.annotation.Generated;
-import org.greenrobot.greendao.annotation.Transient;
 
 import java.io.Serializable;
 
@@ -32,35 +33,22 @@ public class Folder implements Serializable
     @SerializedName("ParentFId")
     private Long parentId;
 
-    @Transient
-    private Boolean isChecked = false;
+    @Property(nameInDb = "UserFId")
+    @SerializedName("UserFId")
+    private Long userId;
 
-
-    @Generated(hash = 1855408798)
+    @Generated(hash = 558511380)
     public Folder(Long folderId, String folderString, String drivePath,
-            Long parentId) {
+            Long parentId, Long userId) {
         this.folderId = folderId;
         this.folderString = folderString;
         this.drivePath = drivePath;
         this.parentId = parentId;
+        this.userId = userId;
     }
 
     @Generated(hash = 1947132626)
     public Folder() {
-    }
-
-
-    @Override
-    public String toString() {
-        return folderString;
-    }
-
-    public Boolean getChecked() {
-        return isChecked;
-    }
-
-    public void setChecked(Boolean checked) {
-        isChecked = checked;
     }
 
     public Long getFolderId() {
@@ -93,5 +81,19 @@ public class Folder implements Serializable
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
+    }
+
+    public Long getUserId() {
+        return this.userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return folderString;
     }
 }

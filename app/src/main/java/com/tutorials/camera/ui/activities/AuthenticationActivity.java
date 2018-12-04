@@ -2,33 +2,40 @@ package com.tutorials.camera.ui.activities;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatRadioButton;
-import android.view.KeyEvent;
+import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.tutorials.camera.R;
 import com.tutorials.camera.SCamera;
+import com.tutorials.camera.data.LocalParams;
 import com.tutorials.camera.interfaces.IUsers;
 import com.tutorials.camera.models.Token;
 import com.tutorials.camera.models.User;
 import com.tutorials.camera.models.UserDao;
 import com.tutorials.camera.tools.AppTools;
+import com.tutorials.camera.tools.ExternalStorage;
 import com.tutorials.camera.tools.RetrofitClient;
+import com.tutorials.camera.tools.VersionTools;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -37,6 +44,8 @@ import retrofit2.Response;
 
 public class AuthenticationActivity extends AppCompatActivity implements View.OnClickListener
 {
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
@@ -52,24 +61,27 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
 
         FloatingActionButton configBtn = findViewById(R.id.configBtn);
         configBtn.setOnClickListener(this);
+        FloatingActionButton storeBtn = findViewById(R.id.storeBtn);
+        storeBtn.setOnClickListener(this);
 
         TextInputEditText userPassEdt = findViewById(R.id.userPassEdt);
-        userPassEdt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event)
+        userPassEdt.setOnEditorActionListener((v, actionId, event) ->
+        {
+            if (actionId == EditorInfo.IME_ACTION_DONE)
             {
-                if (actionId == EditorInfo.IME_ACTION_DONE)
-                {
-                    findViewById(R.id.btn_login).performClick();
-                }
-                return false;
+                findViewById(R.id.btn_login).performClick();
             }
+            return false;
         });
 
         UserDao userDao = SCamera.getInstance().getDaoSession().getUserDao();
         List<User> list = userDao.loadAll();
         if(list.size()>0)
             findViewById(R.id.cleanTxt).setVisibility(View.VISIBLE);
+
+        AppCompatTextView titleTextView = findViewById(R.id.titleTextView);
+        String title = titleTextView.getText().toString();
+        titleTextView.setText(String.format("%s  %s",title, LocalParams.CURRENT_VERSION));
     }
 
     @Override
@@ -108,7 +120,6 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                 break;
             case R.id.configBtn:
                 //http://localhost:1900/api/links
-
                 AppTools.loadConfigDialog(this);
 
 
@@ -117,21 +128,57 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Confirmation");
                 builder.setMessage("Will you clear all offline login?");
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                    }
-                });
-                builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.dismiss();
-                        cleanLogin();
-                    }
+                builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss());
+                builder.setPositiveButton("Ok", (dialogInterface, i) ->
+                {
+                    dialogInterface.dismiss();
+                    cleanLogin();
                 });
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
+                break;
+            case R.id.storeBtn:
+                List<File> sd = AppTools.getStorages(this);
+                StringBuilder b = new StringBuilder();
+                for(File s:sd) b.append(s).append("\n");
+
+                /*String message;
+                if(AppTools.hasStorage(true))
+                {
+                    message = "hasStorage";
+                }
+                else
+                {
+                    message = "notStorage";
+                }
+                Toast.makeText(getApplicationContext(),message,Toast.LENGTH_SHORT).show();*/
+                //Toast.makeText(getApplicationContext(),b.toString(),Toast.LENGTH_SHORT).show();
+
+                Map<String, File> map = ExternalStorage.getAllStorageLocations();
+
+                for (Map.Entry<String,File> entry:map.entrySet())
+                {
+                    String build = entry.getKey() + " :: " + entry.getValue();
+                    Toast.makeText(getApplicationContext(), build,Toast.LENGTH_SHORT).show();
+                }
+
+//                StorageManager storageManager = (StorageManager) this.getSystemService(Context.STORAGE_SERVICE);
+//
+//                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N && storageManager!=null)
+//                {
+//                    List<StorageVolume> storageVolumeList = storageManager.getStorageVolumes();
+//                }
+
+                File f = Environment.getExternalStorageDirectory();
+                Toast.makeText(getApplicationContext(), f.toString(),Toast.LENGTH_SHORT).show();
+
+                List<File> files = AppTools.getRootFolders();
+
+                for(File file:files)
+                {
+                    Toast.makeText(getApplicationContext(), file.toString(),Toast.LENGTH_SHORT).show();
+                }
+
                 break;
         }
     }
@@ -147,13 +194,26 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
             findViewById(R.id.cleanTxt).setVisibility(View.GONE);
     }
 
-    private void login(String userName, String userPass)
+    private void launchProgress()
     {
-        final ProgressDialog progressDialog = new ProgressDialog(this,R.style.AppTheme_Dark_Dialog);
+        progressDialog = new ProgressDialog(AuthenticationActivity.this,R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setCancelable(false);
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
+    }
+
+    private void cancelProgress()
+    {
+        if(progressDialog!=null && progressDialog.isShowing())
+        {
+            progressDialog.dismiss();
+        }
+    }
+
+    private void login(String userName, String userPass)
+    {
+        launchProgress();
 
         AppCompatRadioButton autoRbn = findViewById(R.id.autoRbn);
         AppCompatRadioButton onlineRbn = findViewById(R.id.onlineRbn);
@@ -167,7 +227,8 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                 User dbUser = userDao.queryBuilder().where(UserDao.Properties.UserName.eq(userName)).unique();
                 if(dbUser!=null)
                 {
-                    progressDialog.dismiss();
+                    cancelProgress();
+
                     if(userPass.equals(dbUser.getUserPass()))
                     {
                         SCamera.getInstance().setToken(dbUser.getToken());
@@ -184,61 +245,89 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                 }
                 else
                 {
-                    IUsers iUsers = RetrofitClient.getRetrofitInstance(AuthenticationActivity.this).create(IUsers.class);
                     final User user = new User();
                     user.setUserName(userName);
                     user.setUserPass(userPass);
-                    Call<Token> call = iUsers.login(user);
-                    call.enqueue(new Callback<Token>()
+
+                    VersionTools versionTools = VersionTools.getInstance();
+                    versionTools.setVersionCallBackListener(new VersionTools.VersionCallBackListener()
                     {
                         @Override
-                        public void onResponse(@NonNull Call<Token> call, @NonNull Response<Token> response)
+                        public void onSuccess()
                         {
-                            progressDialog.dismiss();
-                            if (response.isSuccessful())
+                            IUsers iUsers = RetrofitClient.getRetrofitInstance(AuthenticationActivity.this).create(IUsers.class);
+                            Call<Token> call = iUsers.login(user);
+                            call.enqueue(new Callback<Token>()
                             {
-                                Token token = response.body();
-                                if(token!=null)
+                                @Override
+                                public void onResponse(@NonNull Call<Token> call, @NonNull Response<Token> response)
                                 {
-                                    user.setToken(token.getTokenString());
-                                    user.setUserId(token.getUserId());
-                                    user.setBranchId(token.getBranchId());
-                                    SCamera.getInstance().setToken(token.getTokenString());
-                                    SCamera.getInstance().setCurrentUser(user);
-                                    UserDao userDao = SCamera.getInstance().getDaoSession().getUserDao();
-                                    userDao.insertOrReplace(user);
-                                    Toast.makeText(getApplicationContext(),"Connected",Toast.LENGTH_LONG).show();
-                                    Intent intent = new Intent(getApplicationContext(),MainActivity.class);
-                                    startActivity(intent);
-                                    finish();
+                                    cancelProgress();
+
+                                    if (response.isSuccessful())
+                                    {
+                                        Token token = response.body();
+                                        if(token!=null)
+                                        {
+                                            user.setToken(token.getTokenString());
+                                            user.setUserId(token.getUserId());
+                                            user.setBranchId(token.getBranchId());
+                                            SCamera.getInstance().setToken(token.getTokenString());
+                                            SCamera.getInstance().setCurrentUser(user);
+                                            UserDao userDao = SCamera.getInstance().getDaoSession().getUserDao();
+                                            userDao.insertOrReplace(user);
+                                            Toast.makeText(getApplicationContext(),"Connected",Toast.LENGTH_LONG).show();
+                                            Intent intent = new Intent(getApplicationContext(),MainActivity.class);
+                                            startActivity(intent);
+                                            finish();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        ResponseBody responseBody = response.errorBody();
+                                        if(responseBody!=null)
+                                        {
+                                            try
+                                            {
+                                                Toast.makeText(AuthenticationActivity.this,responseBody.string(),Toast.LENGTH_LONG).show();
+                                            }
+                                            catch (IOException e)
+                                            {
+                                                Toast.makeText(AuthenticationActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                ResponseBody responseBody = response.errorBody();
-                                if(responseBody!=null)
+
+                                @Override
+                                public void onFailure(@NonNull Call<Token> call, @NonNull Throwable t)
                                 {
-                                    try
-                                    {
-                                        Toast.makeText(AuthenticationActivity.this,responseBody.string(),Toast.LENGTH_LONG).show();
-                                    }
-                                    catch (IOException e)
-                                    {
-                                        Toast.makeText(AuthenticationActivity.this,e.getMessage(),Toast.LENGTH_LONG).show();
-                                        e.printStackTrace();
-                                    }
+                                    progressDialog.dismiss();
+                                    Toast.makeText(getApplicationContext(),"Connection Not found",Toast.LENGTH_LONG).show();
                                 }
-                            }
+                            });
                         }
 
                         @Override
-                        public void onFailure(@NonNull Call<Token> call, @NonNull Throwable t)
-                        {
-                            progressDialog.dismiss();
-                            Toast.makeText(getApplicationContext(),"Connection Not found",Toast.LENGTH_LONG).show();
-                            Toast.makeText(getApplicationContext(),new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
-                            Toast.makeText(getApplicationContext(),new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
-                            Toast.makeText(getApplicationContext(),new Exception(t).getMessage(),Toast.LENGTH_LONG).show();
+                        public void onMessage(String message) {
+
+                        }
+
+
+                        @Override
+                        public void onError(String message) {
+
+                        }
+
+                        @Override
+                        public void onHacking() {
+
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+
                         }
                     });
                 }
@@ -248,6 +337,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
             //region Online
             else if(onlineRbn.isChecked())
             {
+
                 IUsers iUsers = RetrofitClient.getRetrofitInstance(AuthenticationActivity.this).create(IUsers.class);
 
                 final User user = new User();
@@ -260,7 +350,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                     @Override
                     public void onResponse(@NonNull Call<Token> call, @NonNull Response<Token> response)
                     {
-                        progressDialog.dismiss();
+                        cancelProgress();
                         if (response.isSuccessful())
                         {
                             Token token = response.body();
@@ -292,7 +382,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
             //region Offline
             else if(offlineRbn.isChecked())
             {
-                progressDialog.dismiss();
+                cancelProgress();
                 UserDao userDao = SCamera.getInstance().getDaoSession().getUserDao();
                 User dbUser = userDao.queryBuilder().where(UserDao.Properties.UserName.eq(userName)).unique();
                 if(dbUser!=null)
@@ -302,7 +392,7 @@ public class AuthenticationActivity extends AppCompatActivity implements View.On
                         SCamera.getInstance().setToken(dbUser.getToken());
                         SCamera.getInstance().setCurrentUser(dbUser);
                         Toast.makeText(getApplicationContext(),"Connected",Toast.LENGTH_LONG).show();
-                        Intent intent = new Intent(getApplicationContext(),HomeActivity.class);
+                        Intent intent = new Intent(getApplicationContext(),MainActivity.class);
                         startActivity(intent);
                         finish();
                     }

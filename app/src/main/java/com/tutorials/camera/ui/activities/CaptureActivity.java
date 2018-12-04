@@ -2,7 +2,6 @@ package com.tutorials.camera.ui.activities;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -148,17 +147,25 @@ public class CaptureActivity extends AppCompatActivity
         List<Folder> list = new ArrayList<>();
 
         FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
-        List<Folder> folders = folderDao.queryBuilder().where(FolderDao.Properties.ParentId.isNull()).list();
-        String defaultFolder = new LocalData(this).getString("defaultFolder");
-        Integer selected = Integer.MIN_VALUE;
+        List<Folder> folders = folderDao.queryBuilder()
+                .where(FolderDao.Properties.ParentId.isNull())
+                .orderAsc(FolderDao.Properties.FolderString).list();
+
+        Long intFolder = new LocalData(this).getLong("intFolder");
+        Long intParentFolder = new LocalData(this).getLong("intParentFolder");
+        Long selected = null;
         if(folders.size()>0)
         {
-            list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_folder),null,null));
+            list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_folder),null,null,null));
             //list.addAll(folders);
-            for(int i=0;i<folders.size();i++)
+            for(Long i=0L;i.intValue()<folders.size();i++)
             {
-                list.add(folders.get(i));
-                if(defaultFolder!=null && defaultFolder.equals(folders.get(i).getFolderString()))
+                list.add(folders.get(i.intValue()));
+                if(intFolder!=null && intFolder.equals(folders.get(i.intValue()).getFolderId()))
+                {
+                    selected = i;
+                }
+                else if(intParentFolder!=null && intParentFolder.equals(folders.get(i.intValue()).getFolderId()))
                 {
                     selected = i;
                 }
@@ -168,9 +175,9 @@ public class CaptureActivity extends AppCompatActivity
         MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this,list);
         foldersSpinner.setAdapter(mySpinnerAdapter);
         foldersSpinner.setOnItemSelectedListener(this);
-        if(selected!=Integer.MIN_VALUE)
+        if(selected!=null)
         {
-            foldersSpinner.setSelection((selected+1));
+            foldersSpinner.setSelection((selected.intValue()+1));
         }
     }
 
@@ -385,9 +392,10 @@ public class CaptureActivity extends AppCompatActivity
         Boolean subFolderChecked = false;
         if(subFoldersSpinner.getAdapter()!=null)
         {
+
             if(subFoldersSpinner.getAdapter().getCount()>0)
             {
-                if(subFolder!=null)
+                if(subFolder!=null && subFolder.getFolderId()!=Long.MIN_VALUE)
                 {
                     subFolderChecked = true;
                 }
@@ -513,8 +521,6 @@ public class CaptureActivity extends AppCompatActivity
                     else
                     {
                         Toast.makeText(getApplicationContext(),path.getPath(),Toast.LENGTH_LONG).show();
-                        Toast.makeText(getApplicationContext(),path.getPath(),Toast.LENGTH_LONG).show();
-                        Toast.makeText(getApplicationContext(),path.getPath(),Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -599,18 +605,10 @@ public class CaptureActivity extends AppCompatActivity
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Confirmation");
         builder.setMessage("Will you delete the selected picture?");
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-                bitmapAdapter.removeBitmap(path);
-            }
+        builder.setNegativeButton("Cancel", (dialogInterface, i) -> dialogInterface.dismiss());
+        builder.setPositiveButton("Ok", (dialogInterface, i) -> {
+            dialogInterface.dismiss();
+            bitmapAdapter.removeBitmap(path);
         });
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
@@ -628,22 +626,40 @@ public class CaptureActivity extends AppCompatActivity
 
                     FolderDao folderDao = SCamera.getInstance().getDaoSession().getFolderDao();
                     List<Folder> folders = folderDao.queryBuilder().where(FolderDao.Properties.ParentId.eq(folder.getFolderId())).list();
+
+                    Long intFolder = new LocalData(CaptureActivity.this).getLong("intFolder");
+                    Long selected = null;
+
                     if(folders.size()>0)
                     {
                         List<Folder> list = new ArrayList<>();
-                        list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_sub_folder),null,null));
-                        list.addAll(folders);
+                        list.add(new Folder(Long.MIN_VALUE,getString(R.string.please_select_sub_folder),null,null,null));
+                        //list.addAll(folders);
+
+                        for(Long j = 0L; j< folders.size(); j++)
+                        {
+                            list.add(folders.get(j.intValue()));
+                            if(intFolder!=null && intFolder.equals(folders.get(j.intValue()).getFolderId()))
+                            {
+                                selected = j;
+                            }
+                        }
+
                         AppCompatSpinner subFoldersSpinner = findViewById(R.id.subFoldersSpinner);
 
                         MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this,list);
                         subFoldersSpinner.setAdapter(mySpinnerAdapter);
                         subFoldersSpinner.setVisibility(View.VISIBLE);
+
+                        if(selected!=null)
+                        {
+                            subFoldersSpinner.setSelection((selected.intValue()+1));
+                        }
                     }
                     else
                     {
                         AppCompatSpinner subFoldersSpinner = findViewById(R.id.subFoldersSpinner);
-                        MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this, new ArrayList<Folder>());
-                        subFoldersSpinner.setAdapter(mySpinnerAdapter);
+                        subFoldersSpinner.setAdapter(null);
                         subFoldersSpinner.setVisibility(View.GONE);
                     }
 
@@ -651,8 +667,7 @@ public class CaptureActivity extends AppCompatActivity
                 else
                 {
                     AppCompatSpinner subFoldersSpinner = findViewById(R.id.subFoldersSpinner);
-                    MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this, new ArrayList<Folder>());
-                    subFoldersSpinner.setAdapter(mySpinnerAdapter);
+                    subFoldersSpinner.setAdapter(null);
                     subFoldersSpinner.setVisibility(View.GONE);
                 }
                 break;

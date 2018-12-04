@@ -1,8 +1,6 @@
 package com.tutorials.camera.interfaces;
 
-import com.tutorials.camera.models.Folder;
-
-import java.util.List;
+import com.tutorials.camera.models.FolderModel;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -13,5 +11,5 @@ public interface IFolders
 {
     @Headers({"Accept: application/json","Content-Type: application/json"})
     @GET("directories")
-    Call<Folder[]> get(@Header("Authorization") String authorization);
+    Call<FolderModel[]> get(@Header("Authorization") String authorization);
 }

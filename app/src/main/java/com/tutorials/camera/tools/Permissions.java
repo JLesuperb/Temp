@@ -3,6 +3,8 @@ package com.tutorials.camera.tools;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
+
+
 public class Permissions
 {
     public static boolean checkCameraPermission(Context context)

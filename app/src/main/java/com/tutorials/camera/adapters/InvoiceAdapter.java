@@ -10,7 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
+import android.widget.ProgressBar;
 
 import com.bumptech.glide.Glide;
 import com.tutorials.camera.R;
@@ -31,6 +31,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
     private OnInvoiceLongClickListener onInvoiceLongClickListener;
     private OnInvoiceCheckListener onInvoiceCheckListener;
     private Boolean isSelectable = false;
+    private Invoice currentInvoice;
 
     public InvoiceAdapter()
     {
@@ -154,6 +155,25 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
         else if(invoice.getInvoiceBarCode()!=null && !invoice.getInvoiceBarCode().trim().isEmpty())
             viewHolder.invoiceNameTV.setText(invoice.getInvoiceBarCode());
 
+        if(currentInvoice!=null && currentInvoice.getInvoiceId().equals(invoice.getInvoiceId()))
+        {
+            invoice.setInProgress(true);
+        }
+        else
+        {
+            invoice.setInProgress(false);
+        }
+
+        if(invoice.getInProgress())
+        {
+            viewHolder.progressBar.getIndeterminateDrawable().setColorFilter(0xFFFF0000,android.graphics.PorterDuff.Mode.MULTIPLY);
+            viewHolder.progressBar.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            viewHolder.progressBar.setVisibility(View.GONE);
+        }
+
         PictureDao pictureDao = SCamera.getInstance().getDaoSession().getPictureDao();
 
         Picture picture = pictureDao.queryBuilder()
@@ -172,53 +192,41 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
 
         viewHolder.checkBox.setChecked(invoice.getChecked());
 
-        viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        viewHolder.checkBox.setOnCheckedChangeListener((compoundButton, b) ->
         {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b)
-            {
-                invoice.setChecked(b);
-                if(onInvoiceCheckListener !=null)
-                    onInvoiceCheckListener.onInvoiceChecked(invoice);
-            }
+            invoice.setChecked(b);
+            if(onInvoiceCheckListener !=null)
+                onInvoiceCheckListener.onInvoiceChecked(invoice);
         });
 
 
-        viewHolder.invoiceIV.setOnClickListener(new View.OnClickListener()
+        viewHolder.invoiceIV.setOnClickListener(view ->
         {
-            @Override
-            public void onClick(View view)
+            if(!isSelectable)
             {
-                if(!isSelectable)
-                {
-                    if(onInvoiceClickListener !=null)
-                        onInvoiceClickListener.onInvoiceClicked(invoice);
-                }
-                else
-                {
-                    Boolean value = !invoice.getChecked();
-                    invoice.setChecked(value);
-                    viewHolder.checkBox.setChecked(value);
-                }
+                if(onInvoiceClickListener !=null)
+                    onInvoiceClickListener.onInvoiceClicked(invoice);
+            }
+            else
+            {
+                Boolean value = !invoice.getChecked();
+                invoice.setChecked(value);
+                viewHolder.checkBox.setChecked(value);
             }
         });
 
-        viewHolder.invoiceIV.setOnLongClickListener(new View.OnLongClickListener()
+        viewHolder.invoiceIV.setOnLongClickListener(view ->
         {
-            @Override
-            public boolean onLongClick(View view)
+            if(!isSelectable)
             {
-                if(!isSelectable)
-                {
-                    //Boolean value = !invoice.getChecked();
-                    invoice.setChecked(true);
-                    viewHolder.checkBox.setChecked(true);
-                    if(onInvoiceLongClickListener!=null)
-                        onInvoiceLongClickListener.onInvoiceLongClicked(invoice);
-                    return true;
-                }
-                return false;
+                //Boolean value = !invoice.getChecked();
+                invoice.setChecked(true);
+                viewHolder.checkBox.setChecked(true);
+                if(onInvoiceLongClickListener!=null)
+                    onInvoiceLongClickListener.onInvoiceLongClicked(invoice);
+                return true;
             }
+            return false;
         });
     }
 
@@ -241,12 +249,25 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
         return invoices;
     }
 
+    public void setCurrentProgress(Invoice invoice)
+    {
+        this.currentInvoice = invoice;
+        notifyDataSetChanged();
+    }
+
+    public void removeCurrentProgress()
+    {
+        this.currentInvoice = null;
+        notifyDataSetChanged();
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder
     {
         CardView cardView;
         AppCompatTextView invoiceNameTV;
         AppCompatCheckBox checkBox;
         AppCompatImageView invoiceIV;
+        ProgressBar progressBar;
 
         ViewHolder(@NonNull View itemView)
         {
@@ -255,6 +276,7 @@ public class InvoiceAdapter extends RecyclerView.Adapter<InvoiceAdapter.ViewHold
             invoiceNameTV = itemView.findViewById(R.id.invoiceNameTV);
             checkBox = itemView.findViewById(R.id.checkBox);
             invoiceIV = itemView.findViewById(R.id.invoiceIV);
+            progressBar = itemView.findViewById(R.id.progressBar);
         }
     }
 
